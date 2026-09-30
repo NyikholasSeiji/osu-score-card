@@ -1,4 +1,9 @@
-import type { ScoreCardData } from './types.ts'
+import type {
+  AuthUser,
+  ScoreCardData,
+  ScoreListType,
+  ScoreSummary,
+} from './types.ts'
 
 /** Error returned by the backend, carrying a stable `code` for translation. */
 export class ApiError extends Error {
@@ -39,6 +44,29 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export function fetchScoreCard(id: number): Promise<ScoreCardData> {
   return request(`/api/scores/${id}`)
+}
+
+export const LOGIN_URL = '/api/auth/osu'
+
+/** Resolves to `null` when there is no active osu! session. */
+export async function fetchMe(): Promise<AuthUser | null> {
+  try {
+    return await request<AuthUser>('/api/me')
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) return null
+    throw err
+  }
+}
+
+export function fetchMyScores(type: ScoreListType): Promise<ScoreSummary[]> {
+  return request(`/api/me/scores?type=${type}`)
+}
+
+export async function logout(): Promise<void> {
+  const response = await fetch('/api/auth/logout', { method: 'POST' })
+  if (!response.ok) {
+    throw new ApiError('Logout failed.', response.status, null)
+  }
 }
 
 export function proxiedImage(url: string): string {

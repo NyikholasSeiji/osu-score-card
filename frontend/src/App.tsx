@@ -7,7 +7,14 @@ import {
   type FormEvent,
 } from 'react'
 import { toPng } from 'html-to-image'
-import { ApiError, fetchScoreCard, parseScoreId } from './api.ts'
+import {
+  ApiError,
+  LOGIN_URL,
+  fetchMe,
+  fetchScoreCard,
+  logout,
+  parseScoreId,
+} from './api.ts'
 import {
   hideBlock,
   imageFromTransfer,
@@ -18,6 +25,7 @@ import {
   type CardEditor,
 } from './editor.ts'
 import { ScoreCard } from './components/ScoreCard.tsx'
+import { ScorePicker } from './components/ScorePicker.tsx'
 import { StylePanel } from './components/StylePanel.tsx'
 import {
   I18nContext,
@@ -33,9 +41,11 @@ import {
 } from './i18n/index.ts'
 import {
   DEFAULT_STYLE,
+  type AuthUser,
   type CardBlock,
   type CardStyle,
   type ScoreCardData,
+  type ScoreSummary,
 } from './types.ts'
 import './App.css'
 
@@ -48,6 +58,22 @@ function toUiError(err: unknown): UiError {
     return { key: 'request', values: { status: err.status } }
   }
   return { text: err instanceof Error ? err.message : String(err) }
+}
+
+const AUTH_STATUS = ['denied', 'failed', 'state'] as const
+type AuthStatus = (typeof AUTH_STATUS)[number]
+
+/** Reads and strips the `?auth=` flag the OAuth callback redirects back with. */
+function consumeAuthStatus(): AuthStatus | 'ok' | null {
+  const url = new URL(window.location.href)
+  const value = url.searchParams.get('auth')
+  if (value === null) return null
+  url.searchParams.delete('auth')
+  window.history.replaceState(null, '', url)
+  if (value === 'ok') return 'ok'
+  return (AUTH_STATUS as readonly string[]).includes(value)
+    ? (value as AuthStatus)
+    : 'failed'
 }
 
 function App() {
@@ -84,8 +110,61 @@ function Generator() {
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [dropping, setDropping] = useState(false)
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [authStatus] = useState(consumeAuthStatus)
+  const [authNotice, setAuthNotice] = useState<AuthStatus | null>(
+    authStatus && authStatus !== 'ok' ? authStatus : null,
+  )
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [picking, setPicking] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const { stageRef, scale, height } = useCardScale(cardRef, [data, style])
+
+  useEffect(() => {
+    fetchMe()
+      .then((me) => {
+        setUser(me)
+        if (me && authStatus === 'ok') setPickerOpen(true)
+      })
+      .catch(() => setUser(null))
+  }, [authStatus])
+
+  const loadCard = async (id: number) => {
+    setLoading(true)
+    setError(null)
+    try {
+      setData(await fetchScoreCard(id))
+      setSelected(null)
+      return true
+    } catch (err) {
+      setError(toUiError(err))
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onPick = async (score: ScoreSummary) => {
+    setPicking(score.id)
+    setAuthNotice(null)
+    const ok = await loadCard(score.id)
+    setPicking(null)
+    if (ok) {
+      setInput(`https://osu.ppy.sh/scores/${score.id}`)
+      setPickerOpen(false)
+    }
+  }
+
+  const onLogout = async () => {
+    try {
+      await logout()
+    } catch (err) {
+      setError(toUiError(err))
+      return
+    }
+    setUser(null)
+    setPickerOpen(false)
+  }
 
   const applyImageFile = async (file: File) => {
     try {
@@ -179,16 +258,8 @@ function Generator() {
       setError({ key: 'invalidInput' })
       return
     }
-    setLoading(true)
-    setError(null)
-    try {
-      setData(await fetchScoreCard(id))
-      setSelected(null)
-    } catch (err) {
-      setError(toUiError(err))
-    } finally {
-      setLoading(false)
-    }
+    setAuthNotice(null)
+    await loadCard(id)
   }
 
   const onExport = async () => {
@@ -228,6 +299,32 @@ function Generator() {
           </span>
         </a>
         <div className="topbar__right">
+          {user ? (
+            <div className="account">
+              <img
+                className="account__avatar"
+                src={user.avatarUrl}
+                alt=""
+                width={28}
+                height={28}
+              />
+              <span className="account__name">
+                <span className="sr-only">{t.auth.loggedInAs} </span>
+                {user.username}
+              </span>
+              <button
+                type="button"
+                className="topbar__link"
+                onClick={onLogout}
+              >
+                {t.auth.logout}
+              </button>
+            </div>
+          ) : (
+            <a className="button button--small" href={LOGIN_URL}>
+              {t.auth.login}
+            </a>
+          )}
           <label className="lang">
             <span className="sr-only">{t.app.language}</span>
             <select
@@ -276,10 +373,39 @@ function Generator() {
               {loading ? t.intro.loading : t.intro.generate}
             </button>
           </form>
+          <div className="intro__aside">
+            <span className="intro__or">{t.intro.or}</span>
+            {user ? (
+              <button
+                type="button"
+                className="chip"
+                aria-expanded={pickerOpen}
+                onClick={() => setPickerOpen((open) => !open)}
+              >
+                {pickerOpen ? t.auth.hide : t.auth.show}
+              </button>
+            ) : (
+              <span className="intro__login">
+                <a href={LOGIN_URL}>{t.auth.login}</a> {t.auth.loginHint}
+              </span>
+            )}
+          </div>
+          {authNotice && (
+            <p className="error" role="alert">
+              {t.auth[authNotice]}
+            </p>
+          )}
           {error && (
             <p className="error" role="alert">
               {translateError(t, error)}
             </p>
+          )}
+          {user && pickerOpen && (
+            <ScorePicker
+              onPick={onPick}
+              picking={picking}
+              toUiError={toUiError}
+            />
           )}
         </section>
 
