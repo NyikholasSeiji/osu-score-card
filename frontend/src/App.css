@@ -34,6 +34,12 @@
   color: var(--pink);
 }
 
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .topbar__link {
   color: var(--muted);
   text-decoration: none;
@@ -42,6 +48,29 @@
 
 .topbar__link:hover {
   color: var(--text);
+}
+
+.lang select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lang select:hover {
+  color: var(--text);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .main {
@@ -116,15 +145,6 @@
   outline: none;
   border-color: var(--pink);
   box-shadow: 0 0 0 3px rgb(255 102 170 / 0.25);
-}
-
-.link {
-  border: 0;
-  background: none;
-  color: var(--muted);
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 14px;
 }
 
 .error {

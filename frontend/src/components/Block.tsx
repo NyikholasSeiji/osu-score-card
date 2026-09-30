@@ -5,7 +5,8 @@ import {
   type ReactNode,
 } from 'react'
 import { EditorContext, hideBlock, resetOffset } from '../editor.ts'
-import { BLOCK_LABELS, type CardBlock } from '../types.ts'
+import { useI18n } from '../i18n/index.ts'
+import type { CardBlock } from '../types.ts'
 
 interface BlockProps {
   id: CardBlock
@@ -21,6 +22,7 @@ const DRAG_THRESHOLD = 3
  */
 export function Block({ id, className, children }: BlockProps) {
   const context = useContext(EditorContext)
+  const { t } = useI18n()
   const editor = context && !context.readOnly ? context : null
   const drag = useRef<{
     pointerId: number
@@ -96,12 +98,16 @@ export function Block({ id, className, children }: BlockProps) {
     >
       {children}
       {editor && editor.selected === id && (
-        <div className="block__tools" role="toolbar" aria-label={BLOCK_LABELS[id]}>
-          <span className="block__name">{BLOCK_LABELS[id]}</span>
+        <div
+          className="block__tools"
+          role="toolbar"
+          aria-label={t.block.labels[id]}
+        >
+          <span className="block__name">{t.block.labels[id]}</span>
           {offset && (
             <button
               type="button"
-              title="Voltar para a posição original"
+              title={t.block.resetPosition}
               onClick={() => editor.onChange(resetOffset(editor.style, id))}
             >
               ↺
@@ -109,7 +115,7 @@ export function Block({ id, className, children }: BlockProps) {
           )}
           <button
             type="button"
-            title="Esconder este bloco"
+            title={t.block.hide}
             onClick={() => {
               editor.onChange(hideBlock(editor.style, id))
               editor.onSelect(null)

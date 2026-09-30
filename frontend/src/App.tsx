@@ -7,7 +7,7 @@ import {
   type FormEvent,
 } from 'react'
 import { toPng } from 'html-to-image'
-import { fetchScoreCard, parseScoreId } from './api.ts'
+import { ApiError, fetchScoreCard, parseScoreId } from './api.ts'
 import {
   hideBlock,
   imageFromTransfer,
@@ -20,7 +20,18 @@ import {
 import { ScoreCard } from './components/ScoreCard.tsx'
 import { StylePanel } from './components/StylePanel.tsx'
 import {
-  BLOCK_LABELS,
+  I18nContext,
+  LANGUAGES,
+  LANGUAGE_STORAGE_KEY,
+  detectLanguage,
+  isErrorKey,
+  isLanguage,
+  translateError,
+  useI18n,
+  type Language,
+  type UiError,
+} from './i18n/index.ts'
+import {
   DEFAULT_STYLE,
   type CardBlock,
   type CardStyle,
@@ -28,17 +39,48 @@ import {
 } from './types.ts'
 import './App.css'
 
-const EXAMPLE = 'https://osu.ppy.sh/scores/1485666113'
-
 const isEditorNode = (node: HTMLElement) =>
   node.classList?.contains('block__tools') ?? false
 
+function toUiError(err: unknown): UiError {
+  if (err instanceof ApiError) {
+    if (isErrorKey(err.code)) return { key: err.code }
+    return { key: 'request', values: { status: err.status } }
+  }
+  return { text: err instanceof Error ? err.message : String(err) }
+}
+
 function App() {
+  const [lang, setLangState] = useState<Language>(detectLanguage)
+  const t = LANGUAGES[lang]
+
+  const setLang = (next: Language) => {
+    setLangState(next)
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, next)
+  }
+
+  useEffect(() => {
+    document.documentElement.lang = t.locale
+    document.title = t.app.title
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', t.app.description)
+  }, [t])
+
+  return (
+    <I18nContext.Provider value={{ lang, setLang, t }}>
+      <Generator />
+    </I18nContext.Provider>
+  )
+}
+
+function Generator() {
+  const { lang, setLang, t } = useI18n()
   const [input, setInput] = useState('')
   const [data, setData] = useState<ScoreCardData | null>(null)
   const [style, setStyle] = useState<CardStyle>(DEFAULT_STYLE)
   const [selected, setSelected] = useState<CardBlock | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<UiError | null>(null)
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [dropping, setDropping] = useState(false)
@@ -50,7 +92,7 @@ function App() {
       const dataUrl = await readImageAsDataUrl(file)
       setStyle((s) => withCustomBackground(s, dataUrl))
     } catch (err) {
-      setError(`Não foi possível ler a imagem: ${String(err)}`)
+      setError({ key: 'imageFailed', values: { error: String(err) } })
     }
   }
 
@@ -134,7 +176,7 @@ function App() {
     event.preventDefault()
     const id = parseScoreId(input)
     if (id === null) {
-      setError(`Cole um link como ${EXAMPLE} ou só o número do score.`)
+      setError({ key: 'invalidInput' })
       return
     }
     setLoading(true)
@@ -143,7 +185,7 @@ function App() {
       setData(await fetchScoreCard(id))
       setSelected(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(toUiError(err))
     } finally {
       setLoading(false)
     }
@@ -164,7 +206,7 @@ function App() {
       link.download = `osu-score-${data.id}.png`
       link.click()
     } catch (err) {
-      setError(`Falha ao exportar a imagem: ${String(err)}`)
+      setError({ key: 'exportFailed', values: { error: String(err) } })
     } finally {
       setExporting(false)
     }
@@ -185,52 +227,58 @@ function App() {
             osu! <b>card generator</b>
           </span>
         </a>
-        <a
-          className="topbar__link"
-          href="https://github.com/NyikholasSeiji/osu-score-card"
-          target="_blank"
-          rel="noreferrer"
-        >
-          GitHub
-        </a>
+        <div className="topbar__right">
+          <label className="lang">
+            <span className="sr-only">{t.app.language}</span>
+            <select
+              value={lang}
+              onChange={(e) => {
+                if (isLanguage(e.target.value)) setLang(e.target.value)
+              }}
+              aria-label={t.app.language}
+            >
+              {(Object.keys(LANGUAGES) as Language[]).map((code) => (
+                <option key={code} value={code}>
+                  {LANGUAGES[code].name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <a
+            className="topbar__link"
+            href="https://github.com/NyikholasSeiji/osu-score-card"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t.app.github}
+          </a>
+        </div>
       </header>
 
       <main className="main">
         <section className={`intro${data ? ' intro--compact' : ''}`}>
           {!data && (
             <>
-              <h1>Transforme um score do osu! em um card para compartilhar</h1>
-              <p>
-                Cole o link de uma jogada de osu! standard. Os dados vêm direto da
-                API oficial; você só muda o visual.
-              </p>
+              <h1>{t.intro.heading}</h1>
+              <p>{t.intro.lead}</p>
             </>
           )}
           <form className="search" onSubmit={onSubmit}>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={EXAMPLE}
-              aria-label="Link ou ID do score"
+              placeholder={t.intro.placeholder}
+              aria-label={t.intro.inputLabel}
               inputMode="url"
               autoComplete="off"
             />
             <button type="submit" className="button" disabled={loading}>
-              {loading ? 'Buscando…' : 'Gerar card'}
+              {loading ? t.intro.loading : t.intro.generate}
             </button>
           </form>
-          {!data && (
-            <button
-              type="button"
-              className="link"
-              onClick={() => setInput(EXAMPLE)}
-            >
-              Usar um score de exemplo
-            </button>
-          )}
           {error && (
             <p className="error" role="alert">
-              {error}
+              {translateError(t, error)}
             </p>
           )}
         </section>
@@ -259,7 +307,7 @@ function App() {
 
               {style.hidden.length > 0 && (
                 <div className="hidden-blocks">
-                  <span>Escondidos:</span>
+                  <span>{t.actions.hidden}</span>
                   {style.hidden.map((block) => (
                     <button
                       key={block}
@@ -267,7 +315,7 @@ function App() {
                       className="chip"
                       onClick={() => setStyle((s) => showBlock(s, block))}
                     >
-                      {BLOCK_LABELS[block]} +
+                      {t.block.labels[block]} +
                     </button>
                   ))}
                 </div>
@@ -280,7 +328,7 @@ function App() {
                   onClick={onExport}
                   disabled={exporting}
                 >
-                  {exporting ? 'Exportando…' : 'Baixar PNG'}
+                  {exporting ? t.actions.exporting : t.actions.download}
                 </button>
                 <button
                   type="button"
@@ -291,7 +339,7 @@ function App() {
                   }}
                   disabled={!changed}
                 >
-                  Restaurar padrão
+                  {t.actions.reset}
                 </button>
                 <a
                   className="button button--ghost"
@@ -299,7 +347,7 @@ function App() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Ver no osu!
+                  {t.actions.viewOnOsu}
                 </a>
               </div>
             </div>
@@ -315,10 +363,7 @@ function App() {
         )}
       </main>
 
-      <footer className="footer">
-        Não afiliado ao osu! ou à ppy Pty Ltd. Dados obtidos pela API oficial do
-        osu!.
-      </footer>
+      <footer className="footer">{t.app.footer}</footer>
     </div>
   )
 }

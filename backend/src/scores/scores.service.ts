@@ -29,13 +29,17 @@ export class ScoresService {
 
     const api = this.getApi();
     const score = await api.getScore(scoreId).catch((error: unknown) => {
-      throw this.toHttpException(error, 'Score não encontrado.');
+      throw this.toHttpException(error, {
+        code: 'SCORE_NOT_FOUND',
+        message: 'Score not found.',
+      });
     });
 
     if (score.ruleset_id !== Ruleset.osu) {
-      throw new UnprocessableEntityException(
-        'Por enquanto, apenas scores de osu! standard são suportados.',
-      );
+      throw new UnprocessableEntityException({
+        code: 'UNSUPPORTED_RULESET',
+        message: 'Only osu! standard scores are supported for now.',
+      });
     }
 
     let starRating = score.beatmap.difficulty_rating;
@@ -48,7 +52,7 @@ export class ScoresService {
         starRating = attributes.star_rating;
       } catch (error) {
         this.logger.warn(
-          `Não foi possível obter o SR com mods do beatmap ${score.beatmap.id}: ${String(error)}`,
+          `Could not fetch modded star rating for beatmap ${score.beatmap.id}: ${String(error)}`,
         );
       }
     }
@@ -63,9 +67,11 @@ export class ScoresService {
       const clientId = Number(process.env.OSU_CLIENT_ID);
       const clientSecret = process.env.OSU_CLIENT_SECRET;
       if (!clientId || !clientSecret) {
-        throw new ServiceUnavailableException(
-          'Credenciais da API do osu! não configuradas (OSU_CLIENT_ID e OSU_CLIENT_SECRET).',
-        );
+        throw new ServiceUnavailableException({
+          code: 'OSU_CREDENTIALS_MISSING',
+          message:
+            'osu! API credentials are not configured (OSU_CLIENT_ID and OSU_CLIENT_SECRET).',
+        });
       }
       this.api = new API(clientId, clientSecret);
     }
@@ -80,11 +86,17 @@ export class ScoresService {
     this.cache.set(scoreId, { expiresAt: Date.now() + CACHE_TTL_MS, card });
   }
 
-  private toHttpException(error: unknown, notFoundMessage: string): Error {
+  private toHttpException(
+    error: unknown,
+    notFound: { code: string; message: string },
+  ): Error {
     if (error instanceof APIError && error.response?.status_code === 404) {
-      return new NotFoundException(notFoundMessage);
+      return new NotFoundException(notFound);
     }
-    this.logger.error(`Erro ao consultar a API do osu!: ${String(error)}`);
-    return new BadGatewayException('Falha ao consultar a API do osu!.');
+    this.logger.error(`osu! API request failed: ${String(error)}`);
+    return new BadGatewayException({
+      code: 'OSU_API_FAILED',
+      message: 'Could not reach the osu! API.',
+    });
   }
 }
