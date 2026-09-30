@@ -67,6 +67,8 @@ cd osu-score-card
 
 Create an OAuth application at https://osu.ppy.sh/home/account/edit#oauth, copy `backend/.env.example` to `backend/.env` and fill in `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET`.
 
+To enable "Log in with osu!" (picking a score from your own recent plays or top performances), register the **Application Callback URL** on that same page as `<APP_URL>/api/auth/osu/callback` — with the defaults that is `http://localhost:5173/api/auth/osu/callback`. Set `APP_URL` in `.env` when the frontend is served from another address. The client secret and the user tokens stay on the backend; the browser only gets an opaque session cookie.
+
 ```bash
 cd backend
 npm install
@@ -77,6 +79,8 @@ Endpoints:
 
 * `GET /api/scores/:id` — osu! standard score normalized for the card (from `GET /scores/{id}` and, for mods that change difficulty, `POST /beatmaps/{id}/attributes`; cached for 10 minutes).
 * `GET /api/images?url=` — proxy for `assets.ppy.sh`, `a.ppy.sh` and `osu.ppy.sh` images so the card can be exported as PNG.
+* `GET /api/auth/osu` — starts the osu! OAuth login; `GET /api/auth/osu/callback` finishes it and redirects back to `APP_URL`; `POST /api/auth/logout` revokes the token.
+* `GET /api/me` — the logged-in user; `GET /api/me/scores?type=recent|best` — their osu! standard scores for the picker (each one is then loaded through `GET /api/scores/:id`).
 
 ### Frontend
 
