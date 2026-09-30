@@ -1,19 +1,39 @@
 import type { Grade } from './types.ts'
 
-const integer = new Intl.NumberFormat('pt-BR')
-const dateTime = new Intl.DateTimeFormat('pt-BR', {
-  dateStyle: 'long',
-  timeStyle: 'short',
-})
+export interface Formatters {
+  integer: (value: number) => string
+  accuracy: (accuracy: number) => string
+  stars: (stars: number) => string
+  date: (iso: string) => string
+  length: (seconds: number) => string
+}
 
-export const formatInteger = (value: number) => integer.format(Math.round(value))
+const cache = new Map<string, Formatters>()
 
-export const formatAccuracy = (accuracy: number) =>
-  `${(accuracy * 100).toFixed(2).replace('.', ',')}%`
+export function getFormatters(locale: string): Formatters {
+  const cached = cache.get(locale)
+  if (cached) return cached
 
-export const formatStars = (stars: number) => stars.toFixed(2).replace('.', ',')
+  const integer = new Intl.NumberFormat(locale)
+  const decimals = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  const dateTime = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'long',
+    timeStyle: 'short',
+  })
 
-export const formatDate = (iso: string) => dateTime.format(new Date(iso))
+  const formatters: Formatters = {
+    integer: (value) => integer.format(Math.round(value)),
+    accuracy: (accuracy) => `${decimals.format(accuracy * 100)}%`,
+    stars: (stars) => decimals.format(stars),
+    date: (iso) => dateTime.format(new Date(iso)),
+    length: formatLength,
+  }
+  cache.set(locale, formatters)
+  return formatters
+}
 
 export function formatLength(seconds: number): string {
   const minutes = Math.floor(seconds / 60)

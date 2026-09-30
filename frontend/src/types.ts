@@ -92,21 +92,6 @@ export const CARD_BLOCKS: CardBlock[] = [
   'statistics',
 ]
 
-export const BLOCK_LABELS: Record<CardBlock, string> = {
-  header: 'Título do mapa',
-  starRating: 'Estrelas',
-  grade: 'Rank',
-  mods: 'Mods',
-  score: 'Pontuação',
-  meta: 'Data, cliente e BPM',
-  globalRank: 'Ranking global',
-  player: 'Jogador',
-  accuracy: 'Precisão',
-  combo: 'Combo',
-  pp: 'PP',
-  statistics: 'Great/Ok/Meh/Erros',
-}
-
 export interface Offset {
   x: number
   y: number

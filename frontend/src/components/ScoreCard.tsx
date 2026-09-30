@@ -1,15 +1,9 @@
 import { forwardRef, type CSSProperties } from 'react'
 import { proxiedImage } from '../api.ts'
-import {
-  GRADE_LABEL,
-  formatAccuracy,
-  formatDate,
-  formatInteger,
-  formatLength,
-  formatStars,
-} from '../format.ts'
+import { GRADE_LABEL, getFormatters } from '../format.ts'
 import type { CardFont, CardStyle, ScoreCardData } from '../types.ts'
 import { EditorContext, type CardEditor } from '../editor.ts'
+import { interpolate, useI18n } from '../i18n/index.ts'
 import { Block } from './Block.tsx'
 
 interface ScoreCardProps {
@@ -39,6 +33,8 @@ function backgroundImage(data: ScoreCardData, style: CardStyle): string | null {
 
 export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
   function ScoreCard({ data, style, editor }, ref) {
+    const { t } = useI18n()
+    const fmt = getFormatters(t.locale)
     const image = backgroundImage(data, style)
     const totalScore =
       style.scoreMode === 'classic' ? data.score.classic : data.score.standardised
@@ -76,17 +72,21 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
             <Block id="header" className="card__heading">
               <h2 className="card__title">
                 {data.beatmapset.title}{' '}
-                <span className="card__artist">por {data.beatmapset.artist}</span>
+                <span className="card__artist">
+                  {interpolate(t.card.by, { artist: data.beatmapset.artist })}
+                </span>
               </h2>
               <p className="card__difficulty">
                 <span>{data.beatmap.version}</span>
                 <span className="card__muted">
-                  mapeado por {data.beatmapset.creator}
+                  {interpolate(t.card.mappedBy, {
+                    creator: data.beatmapset.creator,
+                  })}
                 </span>
               </p>
             </Block>
             <Block id="starRating" className="card__stars">
-              ★ {formatStars(data.beatmap.starRating)}
+              ★ {fmt.stars(data.beatmap.starRating)}
             </Block>
           </header>
 
@@ -113,35 +113,35 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                   </Block>
                 )}
                 <Block id="score" className="card__score">
-                  {formatInteger(totalScore)}
+                  {fmt.integer(totalScore)}
                 </Block>
                 <Block id="meta" className="card__meta">
                   <dl>
                     <div>
-                      <dt>Jogado por</dt>
+                      <dt>{t.card.playedBy}</dt>
                       <dd>{data.user.username}</dd>
                     </div>
                     <div>
-                      <dt>Enviado em</dt>
-                      <dd>{formatDate(data.endedAt)}</dd>
+                      <dt>{t.card.submittedOn}</dt>
+                      <dd>{fmt.date(data.endedAt)}</dd>
                     </div>
                     <div>
-                      <dt>Jogado no</dt>
+                      <dt>{t.card.playedOn}</dt>
                       <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
                     </div>
                     <div>
-                      <dt>BPM / duração</dt>
+                      <dt>{t.card.bpmLength}</dt>
                       <dd>
-                        {formatInteger(data.beatmap.bpm)} /{' '}
-                        {formatLength(data.beatmap.lengthSeconds)}
+                        {fmt.integer(data.beatmap.bpm)} /{' '}
+                        {fmt.length(data.beatmap.lengthSeconds)}
                       </dd>
                     </div>
                   </dl>
                 </Block>
                 {data.globalRank !== null && (
                   <Block id="globalRank" className="card__global-rank">
-                    <span>Ranking global</span>
-                    <strong>#{formatInteger(data.globalRank)}</strong>
+                    <span>{t.card.globalRank}</span>
+                    <strong>#{fmt.integer(data.globalRank)}</strong>
                   </Block>
                 )}
               </div>
@@ -163,25 +163,25 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
             </Block>
             <div className="card__stats">
               <Block id="accuracy" className="card__stat">
-                <Stat label="Precisão" value={formatAccuracy(data.accuracy)} />
+                <Stat label={t.card.accuracy} value={fmt.accuracy(data.accuracy)} />
               </Block>
               <Block id="combo" className="card__stat">
                 <Stat
-                  label="Combo máximo"
-                  value={`${formatInteger(data.maxCombo)}x`}
+                  label={t.card.maxCombo}
+                  value={`${fmt.integer(data.maxCombo)}x`}
                 />
               </Block>
               <Block id="pp" className="card__stat">
                 <Stat
-                  label="PP"
-                  value={data.pp === null ? '-' : formatInteger(data.pp)}
+                  label={t.card.pp}
+                  value={data.pp === null ? '-' : fmt.integer(data.pp)}
                 />
               </Block>
               <Block id="statistics" className="card__stat-group">
-                <Stat label="Great" value={data.statistics.great} tone="great" />
-                <Stat label="Ok" value={data.statistics.ok} tone="ok" />
-                <Stat label="Meh" value={data.statistics.meh} tone="meh" />
-                <Stat label="Erros" value={data.statistics.miss} tone="miss" />
+                <Stat label={t.card.great} value={data.statistics.great} tone="great" />
+                <Stat label={t.card.ok} value={data.statistics.ok} tone="ok" />
+                <Stat label={t.card.meh} value={data.statistics.meh} tone="meh" />
+                <Stat label={t.card.miss} value={data.statistics.miss} tone="miss" />
               </Block>
             </div>
           </footer>

@@ -19,10 +19,10 @@ export function parseImageUrl(raw: string | undefined): URL {
   try {
     url = new URL(raw ?? '');
   } catch {
-    throw new BadRequestException('URL de imagem inválida.');
+    throw new BadRequestException('Invalid image URL.');
   }
   if (url.protocol !== 'https:' || !ALLOWED_IMAGE_HOSTS.has(url.hostname)) {
-    throw new BadRequestException('Host de imagem não permitido.');
+    throw new BadRequestException('Image host not allowed.');
   }
   return url;
 }
@@ -38,7 +38,7 @@ export class ImagesController {
     const upstream = await fetch(url, { redirect: 'error' }).catch(() => null);
     const contentType = upstream?.headers.get('content-type') ?? '';
     if (!upstream?.ok || !contentType.startsWith('image/')) {
-      throw new BadGatewayException('Não foi possível carregar a imagem.');
+      throw new BadGatewayException('Could not load the image.');
     }
     res.set({
       'Content-Type': contentType,

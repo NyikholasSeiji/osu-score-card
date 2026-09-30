@@ -1,6 +1,5 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import {
-  BLOCK_LABELS,
   CARD_BLOCKS,
   type BackgroundSource,
   type CardBlock,
@@ -14,6 +13,7 @@ import {
   showBlock,
   withCustomBackground,
 } from '../editor.ts'
+import { plural, useI18n } from '../i18n/index.ts'
 
 interface StylePanelProps {
   data: ScoreCardData
@@ -23,18 +23,8 @@ interface StylePanelProps {
   onSelect: (block: CardBlock | null) => void
 }
 
-const BACKGROUND_LABELS: Record<BackgroundSource, string> = {
-  beatmap: 'Capa do mapa',
-  user: 'Capa do perfil',
-  custom: 'Imagem enviada',
-  solid: 'Cor sólida',
-}
-
-const FONT_LABELS: Record<CardFont, string> = {
-  sans: 'Moderna',
-  rounded: 'Arredondada',
-  mono: 'Monoespaçada',
-}
+const BACKGROUNDS: BackgroundSource[] = ['beatmap', 'user', 'custom', 'solid']
+const FONTS: CardFont[] = ['sans', 'rounded', 'mono']
 
 const ACCENT_PRESETS = [
   '#ff66aa',
@@ -53,6 +43,7 @@ export function StylePanel({
   onChange,
   onSelect,
 }: StylePanelProps) {
+  const { t } = useI18n()
   const update = (patch: Partial<CardStyle>) => onChange({ ...style, ...patch })
 
   const onUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +52,7 @@ export function StylePanel({
     onChange(withCustomBackground(style, await readImageAsDataUrl(file)))
   }
 
-  const backgrounds = (Object.keys(BACKGROUND_LABELS) as BackgroundSource[]).filter(
+  const backgrounds = BACKGROUNDS.filter(
     (source) =>
       (source !== 'user' || data.user.coverUrl) &&
       (source !== 'custom' || style.customBackground),
@@ -72,12 +63,14 @@ export function StylePanel({
   return (
     <aside className="panel">
       <p className="panel__hint">
-        Clique num bloco do card para selecioná-lo, arraste para mover e use
-        <kbd>Delete</kbd> ou o <b>✕</b> para escondê-lo.
+        {rich(t.panel.hint, {
+          delete: <kbd>Delete</kbd>,
+          close: <b>✕</b>,
+        })}
       </p>
 
       <details className="panel__section" open>
-        <summary>Fundo</summary>
+        <summary>{t.panel.background}</summary>
         <div className="panel__body">
           <div className="panel__chips">
             {backgrounds.map((source) => (
@@ -87,21 +80,26 @@ export function StylePanel({
                 className={`chip${style.background === source ? ' chip--active' : ''}`}
                 onClick={() => update({ background: source })}
               >
-                {BACKGROUND_LABELS[source]}
+                {t.panel.backgrounds[source]}
               </button>
             ))}
             <label className="chip chip--file">
-              Enviar imagem…
+              {t.panel.upload}
               <input type="file" accept="image/*" onChange={onUpload} />
             </label>
           </div>
           <p className="panel__note">
-            Você também pode colar uma imagem com <kbd>Ctrl</kbd>+<kbd>V</kbd>{' '}
-            ou arrastá-la para cima do card.
+            {rich(t.panel.pasteHint, {
+              shortcut: (
+                <>
+                  <kbd>Ctrl</kbd>+<kbd>V</kbd>
+                </>
+              ),
+            })}
           </p>
           {style.background === 'solid' && (
             <label className="panel__row">
-              <span>Cor de fundo</span>
+              <span>{t.panel.backgroundColor}</span>
               <input
                 type="color"
                 value={style.backgroundColor}
@@ -110,7 +108,9 @@ export function StylePanel({
             </label>
           )}
           <label>
-            <span>Escurecer · {Math.round(style.overlayOpacity * 100)}%</span>
+            <span>
+              {t.panel.darken} · {Math.round(style.overlayOpacity * 100)}%
+            </span>
             <input
               type="range"
               min={0}
@@ -121,7 +121,9 @@ export function StylePanel({
             />
           </label>
           <label>
-            <span>Desfoque · {style.blur}px</span>
+            <span>
+              {t.panel.blur} · {style.blur}px
+            </span>
             <input
               type="range"
               min={0}
@@ -135,10 +137,10 @@ export function StylePanel({
       </details>
 
       <details className="panel__section" open>
-        <summary>Aparência</summary>
+        <summary>{t.panel.appearance}</summary>
         <div className="panel__body">
           <div className="panel__row">
-            <span>Cor de destaque</span>
+            <span>{t.panel.accent}</span>
             <div className="swatches">
               {ACCENT_PRESETS.map((color) => (
                 <button
@@ -158,7 +160,7 @@ export function StylePanel({
             </div>
           </div>
           <label className="panel__row">
-            <span>Cor do texto</span>
+            <span>{t.panel.textColor}</span>
             <input
               type="color"
               value={style.textColor}
@@ -166,20 +168,22 @@ export function StylePanel({
             />
           </label>
           <label className="panel__row">
-            <span>Fonte</span>
+            <span>{t.panel.font}</span>
             <select
               value={style.font}
               onChange={(e) => update({ font: e.target.value as CardFont })}
             >
-              {(Object.keys(FONT_LABELS) as CardFont[]).map((font) => (
+              {FONTS.map((font) => (
                 <option key={font} value={font}>
-                  {FONT_LABELS[font]}
+                  {t.panel.fonts[font]}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            <span>Cantos arredondados · {style.radius}px</span>
+            <span>
+              {t.panel.radius} · {style.radius}px
+            </span>
             <input
               type="range"
               min={0}
@@ -190,34 +194,36 @@ export function StylePanel({
             />
           </label>
           <label className="panel__row">
-            <span>Layout</span>
+            <span>{t.panel.layout}</span>
             <select
               value={style.layout}
               onChange={(e) =>
                 update({ layout: e.target.value as CardStyle['layout'] })
               }
             >
-              <option value="classic">Clássico (960px)</option>
-              <option value="compact">Compacto (640px)</option>
+              <option value="classic">{t.panel.layouts.classic}</option>
+              <option value="compact">{t.panel.layouts.compact}</option>
             </select>
           </label>
           <label className="panel__row">
-            <span>Pontuação</span>
+            <span>{t.panel.scoreMode}</span>
             <select
               value={style.scoreMode}
               onChange={(e) =>
                 update({ scoreMode: e.target.value as CardStyle['scoreMode'] })
               }
             >
-              <option value="classic">Clássica</option>
-              <option value="standardised">Padronizada (lazer)</option>
+              <option value="classic">{t.panel.scoreModes.classic}</option>
+              <option value="standardised">
+                {t.panel.scoreModes.standardised}
+              </option>
             </select>
           </label>
         </div>
       </details>
 
       <details className="panel__section" open>
-        <summary>Blocos</summary>
+        <summary>{t.panel.blocks}</summary>
         <div className="panel__body">
           <ul className="blocks">
             {CARD_BLOCKS.map((block) => {
@@ -232,12 +238,12 @@ export function StylePanel({
                     className="blocks__name"
                     onClick={() => onSelect(hidden ? null : block)}
                   >
-                    {BLOCK_LABELS[block]}
+                    {t.block.labels[block]}
                   </button>
                   <button
                     type="button"
                     className="blocks__toggle"
-                    title={hidden ? 'Mostrar' : 'Esconder'}
+                    title={hidden ? t.panel.show : t.panel.hide}
                     aria-pressed={!hidden}
                     onClick={() =>
                       onChange(
@@ -245,7 +251,7 @@ export function StylePanel({
                       )
                     }
                   >
-                    {hidden ? 'Mostrar' : 'Esconder'}
+                    {hidden ? t.panel.show : t.panel.hide}
                   </button>
                 </li>
               )
@@ -257,11 +263,20 @@ export function StylePanel({
               className="button button--ghost"
               onClick={() => update({ offsets: {} })}
             >
-              Recolocar {moved === 1 ? '1 bloco' : `${moved} blocos`} no lugar
+              {plural(t.panel.resetOffsets, moved)}
             </button>
           )}
         </div>
       </details>
     </aside>
   )
+}
+
+/** Splits a template on `{name}` placeholders and swaps in React nodes. */
+function rich(template: string, values: Record<string, ReactNode>): ReactNode[] {
+  return template.split(/(\{\w+\})/).map((part, index) => {
+    const match = /^\{(\w+)\}$/.exec(part)
+    if (!match) return part
+    return <span key={index}>{values[match[1]] ?? part}</span>
+  })
 }
