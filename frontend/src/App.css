@@ -236,6 +236,16 @@
   width: 100%;
   overflow: hidden;
   border-radius: 20px;
+  transition: box-shadow 0.15s;
+}
+
+.editor__preview--dropping .stage {
+  box-shadow: 0 0 0 3px var(--pink);
+}
+
+.editor__preview--dropping .stage__inner {
+  pointer-events: none;
+  opacity: 0.85;
 }
 
 .stage__inner {
@@ -282,6 +292,22 @@
   color: var(--text);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.panel__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.panel__note kbd {
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  font: inherit;
+  font-size: 11px;
 }
 
 .panel__section {

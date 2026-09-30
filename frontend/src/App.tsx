@@ -3,14 +3,18 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type DragEvent,
   type FormEvent,
 } from 'react'
 import { toPng } from 'html-to-image'
 import { fetchScoreCard, parseScoreId } from './api.ts'
 import {
   hideBlock,
+  imageFromTransfer,
+  readImageAsDataUrl,
   resetOffset,
   showBlock,
+  withCustomBackground,
   type CardEditor,
 } from './editor.ts'
 import { ScoreCard } from './components/ScoreCard.tsx'
@@ -37,8 +41,45 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [dropping, setDropping] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const { stageRef, scale, height } = useCardScale(cardRef, [data, style])
+
+  const applyImageFile = async (file: File) => {
+    try {
+      const dataUrl = await readImageAsDataUrl(file)
+      setStyle((s) => withCustomBackground(s, dataUrl))
+    } catch (err) {
+      setError(`Não foi possível ler a imagem: ${String(err)}`)
+    }
+  }
+
+  useEffect(() => {
+    if (!data) return
+    const onPaste = (event: ClipboardEvent) => {
+      if ((event.target as HTMLElement).matches('input, textarea')) return
+      const file = imageFromTransfer(event.clipboardData)
+      if (!file) return
+      event.preventDefault()
+      void applyImageFile(file)
+    }
+    window.addEventListener('paste', onPaste)
+    return () => window.removeEventListener('paste', onPaste)
+  }, [data])
+
+  const onDragOver = (event: DragEvent) => {
+    if (!event.dataTransfer.types.includes('Files')) return
+    event.preventDefault()
+    setDropping(true)
+  }
+
+  const onDrop = (event: DragEvent) => {
+    setDropping(false)
+    const file = imageFromTransfer(event.dataTransfer)
+    if (!file) return
+    event.preventDefault()
+    void applyImageFile(file)
+  }
 
   useEffect(() => {
     if (!selected) return
@@ -196,7 +237,12 @@ function App() {
 
         {data && (
           <section className="editor">
-            <div className="editor__preview">
+            <div
+              className={`editor__preview${dropping ? ' editor__preview--dropping' : ''}`}
+              onDragOver={onDragOver}
+              onDragLeave={() => setDropping(false)}
+              onDrop={onDrop}
+            >
               <div className="stage" ref={stageRef} style={{ height }}>
                 <div
                   className="stage__inner"
