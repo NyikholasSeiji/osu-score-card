@@ -614,6 +614,10 @@
   font-size: 13px;
 }
 
+.card__meta dl > div {
+  display: contents;
+}
+
 .card__meta dt {
   opacity: 0.8;
 }
@@ -732,50 +736,142 @@
   font-size: 20px;
 }
 
-/* Compact layout */
+/* Compact layout: a 640px vertical card. The hero and footer become grids so
+   every block has its own slot instead of squeezing the classic row. */
 
 .card--compact {
   width: 640px;
 }
 
 .card--compact .card__header {
-  padding: 14px 20px 10px;
+  padding: 14px 20px 12px;
 }
 
 .card--compact .card__title {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .card--compact .card__artist {
-  font-size: 15px;
+  display: block;
+  font-size: 14px;
+}
+
+.card--compact .card__difficulty {
+  font-size: 13px;
+}
+
+.card--compact .card__stars {
+  font-size: 13px;
 }
 
 .card--compact .card__hero {
   min-height: 0;
 }
 
+.card--compact .card__hero-overlay {
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / calc(var(--overlay) * 0.7)),
+    rgb(0 0 0 / var(--overlay))
+  );
+}
+
 .card--compact .card__hero-content {
-  gap: 20px;
-  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'grade mods'
+    'grade score'
+    'grade rank'
+    'meta meta';
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 8px;
+  padding: 22px 24px 18px;
+}
+
+.card--compact .card__score-block {
+  display: contents;
 }
 
 .card--compact .card__grade {
-  width: 110px;
-  font-size: 110px;
+  grid-area: grade;
+  width: auto;
+  min-width: 96px;
+  font-size: 104px;
+}
+
+.card--compact .card__mods {
+  grid-area: mods;
+  align-self: end;
 }
 
 .card--compact .card__score {
-  font-size: 44px;
+  grid-area: score;
+  font-size: 48px;
+}
+
+.card--compact .card__global-rank {
+  grid-area: rank;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  align-self: start;
+}
+
+.card--compact .card__global-rank strong {
+  font-size: 18px;
+}
+
+.card--compact .card__meta {
+  grid-area: meta;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 0.2);
+}
+
+.card--compact .card__meta dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 16px;
+  font-size: 12px;
+}
+
+.card--compact .card__meta dl > div {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .card--compact .card__footer {
-  flex-direction: column;
-  align-items: stretch;
-  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto);
+  align-items: center;
+  gap: 14px 18px;
+  padding: 14px 20px 16px;
 }
 
 .card--compact .card__stats {
-  justify-content: space-between;
+  display: contents;
+}
+
+.card--compact .card__avatar {
+  width: 52px;
+  height: 52px;
+}
+
+.card--compact .card__username {
+  font-size: 16px;
+}
+
+.card--compact .stat {
+  min-width: 72px;
+}
+
+.card--compact .card__stat-group {
+  grid-column: 1 / -1;
+  justify-content: space-around;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
 }
 
 /* ---------- Editable blocks ---------- */
