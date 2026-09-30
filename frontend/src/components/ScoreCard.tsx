@@ -117,17 +117,25 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                 </Block>
                 <Block id="meta" className="card__meta">
                   <dl>
-                    <dt>Jogado por</dt>
-                    <dd>{data.user.username}</dd>
-                    <dt>Enviado em</dt>
-                    <dd>{formatDate(data.endedAt)}</dd>
-                    <dt>Jogado no</dt>
-                    <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
-                    <dt>BPM / duração</dt>
-                    <dd>
-                      {formatInteger(data.beatmap.bpm)} /{' '}
-                      {formatLength(data.beatmap.lengthSeconds)}
-                    </dd>
+                    <div>
+                      <dt>Jogado por</dt>
+                      <dd>{data.user.username}</dd>
+                    </div>
+                    <div>
+                      <dt>Enviado em</dt>
+                      <dd>{formatDate(data.endedAt)}</dd>
+                    </div>
+                    <div>
+                      <dt>Jogado no</dt>
+                      <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
+                    </div>
+                    <div>
+                      <dt>BPM / duração</dt>
+                      <dd>
+                        {formatInteger(data.beatmap.bpm)} /{' '}
+                        {formatLength(data.beatmap.lengthSeconds)}
+                      </dd>
+                    </div>
                   </dl>
                 </Block>
                 {data.globalRank !== null && (
