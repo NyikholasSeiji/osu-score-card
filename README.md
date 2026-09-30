@@ -16,7 +16,7 @@ OsuScore is a full-stack project built around the osu! API. The application allo
 
 ### Backend
 
-* Node.js
+* Node.js 20 or newer
 * NestJS
 * TypeScript
 
@@ -42,9 +42,10 @@ osu-score-card/
 * [ ] Display player statistics
 * [ ] Display recent scores
 * [ ] Display best scores
+* [x] Score card for a single osu! standard score (visual customization + PNG export)
 * [ ] Score and performance analysis
 * [ ] Responsive interface
-* [ ] osu! API integration
+* [x] osu! API integration
 
 ## Getting Started
 
@@ -64,11 +65,18 @@ cd osu-score-card
 
 ### Backend
 
+Create an OAuth application at https://osu.ppy.sh/home/account/edit#oauth, copy `backend/.env.example` to `backend/.env` and fill in `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET`.
+
 ```bash
 cd backend
 npm install
 npm run start:dev
 ```
+
+Endpoints:
+
+* `GET /api/scores/:id` — osu! standard score normalized for the card (from `GET /scores/{id}` and, for mods that change difficulty, `POST /beatmaps/{id}/attributes`; cached for 10 minutes).
+* `GET /api/images?url=` — proxy for `assets.ppy.sh`, `a.ppy.sh` and `osu.ppy.sh` images so the card can be exported as PNG.
 
 ### Frontend
 
@@ -79,6 +87,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+The Vite dev server proxies `/api` to `http://localhost:3000`. Paste a score link (e.g. `https://osu.ppy.sh/scores/1485666113`), adjust the appearance and download the card as PNG. Score data is read-only; only the background, colors, layout and visible fields can be changed.
 
 ## Development
 

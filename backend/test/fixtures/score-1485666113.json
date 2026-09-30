@@ -1,0 +1,142 @@
+{
+  "classic_total_score": 2109807,
+  "preserve": true,
+  "processed": true,
+  "ranked": true,
+  "maximum_statistics": {
+    "great": 222,
+    "legacy_combo_increase": 52
+  },
+  "mods": [
+    {
+      "acronym": "DT"
+    },
+    {
+      "acronym": "HD"
+    },
+    {
+      "acronym": "CL"
+    }
+  ],
+  "statistics": {
+    "ok": 2,
+    "great": 220
+  },
+  "beatmap_id": 2060305,
+  "best_id": null,
+  "id": 1485666113,
+  "rank": "SH",
+  "type": "solo_score",
+  "user_id": 9899907,
+  "accuracy": 0.993994,
+  "build_id": null,
+  "ended_at": "2022-02-13T22:32:11Z",
+  "has_replay": false,
+  "is_perfect_combo": false,
+  "legacy_perfect": false,
+  "legacy_score_id": 4064633190,
+  "legacy_total_score": 1828324,
+  "max_combo": 273,
+  "passed": true,
+  "pp": 485.152,
+  "ruleset_id": 0,
+  "started_at": null,
+  "total_score": 1237293,
+  "replay": false,
+  "beatmap": {
+    "beatmapset_id": 984684,
+    "difficulty_rating": 5.10226,
+    "id": 2060305,
+    "lazer_only": false,
+    "mode": "osu",
+    "status": "ranked",
+    "total_length": 53,
+    "user_id": 6280862,
+    "version": "I Think You Could Use a Mint",
+    "accuracy": 9,
+    "ar": 9,
+    "bpm": 164.08,
+    "convert": false,
+    "count_circles": 170,
+    "count_sliders": 52,
+    "count_spinners": 0,
+    "cs": 3.8,
+    "deleted_at": null,
+    "drain": 5.2,
+    "hit_length": 53,
+    "is_scoreable": true,
+    "last_updated": "2019-06-13T19:15:18Z",
+    "mode_int": 0,
+    "passcount": 2328885,
+    "playcount": 14706675,
+    "ranked": 1,
+    "url": "https://osu.ppy.sh/beatmaps/2060305",
+    "checksum": "b932055d4afc5aa9c2d63ef0c1bcee39",
+    "max_combo": 274
+  },
+  "beatmapset": {
+    "anime_cover": true,
+    "artist": "Victorious Cast",
+    "artist_unicode": "Victorious Cast",
+    "covers": {
+      "cover": "https://assets.ppy.sh/beatmaps/984684/covers/cover.jpg?1650681093",
+      "cover@2x": "https://assets.ppy.sh/beatmaps/984684/covers/cover@2x.jpg?1650681093",
+      "card": "https://assets.ppy.sh/beatmaps/984684/covers/card.jpg?1650681093",
+      "card@2x": "https://assets.ppy.sh/beatmaps/984684/covers/card@2x.jpg?1650681093",
+      "list": "https://assets.ppy.sh/beatmaps/984684/covers/list.jpg?1650681093",
+      "list@2x": "https://assets.ppy.sh/beatmaps/984684/covers/list@2x.jpg?1650681093",
+      "slimcover": "https://assets.ppy.sh/beatmaps/984684/covers/slimcover.jpg?1650681093",
+      "slimcover@2x": "https://assets.ppy.sh/beatmaps/984684/covers/slimcover@2x.jpg?1650681093"
+    },
+    "creator": "SquareTude",
+    "favourite_count": 10048,
+    "genre_id": 5,
+    "hype": null,
+    "id": 984684,
+    "language_id": 2,
+    "nsfw": false,
+    "offset": 0,
+    "play_count": 43265007,
+    "preview_url": "https://b.ppy.sh/preview/984684.mp3",
+    "source": "Victorious",
+    "spotlight": false,
+    "status": "ranked",
+    "title": "Take a Hint feat. Victoria Justice & Elizabeth Gillies (Speed Up Ver.)",
+    "title_unicode": "Take a Hint feat. Victoria Justice & Elizabeth Gillies (Speed Up Ver.)",
+    "track_id": null,
+    "user_id": 6280862,
+    "video": false
+  },
+  "rank_global": 1083,
+  "user": {
+    "avatar_url": "https://a.ppy.sh/9899907?1702844709.jpeg",
+    "country_code": "BR",
+    "default_group": "default",
+    "id": 9899907,
+    "is_active": true,
+    "is_bot": false,
+    "is_deleted": false,
+    "is_online": true,
+    "is_supporter": false,
+    "last_visit": "2026-09-30T14:02:32+00:00",
+    "pm_friends_only": false,
+    "profile_colour": null,
+    "username": "Dunha",
+    "country": {
+      "code": "BR",
+      "name": "Brazil"
+    },
+    "cover": {
+      "custom_url": null,
+      "url": "https://assets.ppy.sh/user-cover-presets/38/b6a55c4e41dec91e30204263fdc0d8ed1a3b6ec435d6b9e1205809374a4e192e.jpeg",
+      "id": "38"
+    },
+    "team": {
+      "flag_url": "https://assets.ppy.sh/teams/flag/7778/6ebd6e4fcbcca54f27c52c865708ffd2b01937ec760361942b89769c489ee7eb.jpeg",
+      "id": 7778,
+      "name": "Dablio",
+      "short_name": "Dabw"
+    }
+  },
+  "replay_views": 0
+}

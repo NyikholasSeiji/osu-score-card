@@ -1,121 +1,90 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useRef, useState, type FormEvent } from 'react'
+import { toPng } from 'html-to-image'
+import { fetchScoreCard, parseScoreId } from './api.ts'
+import { ScoreCard } from './components/ScoreCard.tsx'
+import { StylePanel } from './components/StylePanel.tsx'
+import { DEFAULT_STYLE, type CardStyle, type ScoreCardData } from './types.ts'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [input, setInput] = useState('')
+  const [data, setData] = useState<ScoreCardData | null>(null)
+  const [style, setStyle] = useState<CardStyle>(DEFAULT_STYLE)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    const id = parseScoreId(input)
+    if (id === null) {
+      setError('Cole um link como https://osu.ppy.sh/scores/1485666113 ou só o ID.')
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      setData(await fetchScoreCard(id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onExport = async () => {
+    if (!cardRef.current || !data) return
+    setExporting(true)
+    try {
+      const url = await toPng(cardRef.current, { pixelRatio: 2 })
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `osu-score-${data.id}.png`
+      link.click()
+    } catch (err) {
+      setError(`Falha ao exportar a imagem: ${String(err)}`)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <main className="app">
+      <h1 className="app__title">osu! score card</h1>
+      <form className="search" onSubmit={onSubmit}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="https://osu.ppy.sh/scores/1485666113"
+          aria-label="Link ou ID do score"
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Buscando…' : 'Gerar card'}
         </button>
-      </section>
+      </form>
+      {error && <p className="error">{error}</p>}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
+      {data && (
+        <div className="editor">
+          <div className="editor__preview">
+            <ScoreCard ref={cardRef} data={data} style={style} />
+            <div className="editor__actions">
+              <button type="button" onClick={onExport} disabled={exporting}>
+                {exporting ? 'Exportando…' : 'Baixar PNG'}
+              </button>
+              <button type="button" onClick={() => setStyle(DEFAULT_STYLE)}>
+                Restaurar estilo
+              </button>
+              <a href={data.url} target="_blank" rel="noreferrer">
+                Ver no osu!
               </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+            </div>
+          </div>
+          <StylePanel data={data} style={style} onChange={setStyle} />
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      )}
+    </main>
   )
 }
 
