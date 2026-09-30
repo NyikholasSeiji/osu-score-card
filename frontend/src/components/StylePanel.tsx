@@ -8,7 +8,12 @@ import {
   type CardStyle,
   type ScoreCardData,
 } from '../types.ts'
-import { hideBlock, showBlock } from '../editor.ts'
+import {
+  hideBlock,
+  readImageAsDataUrl,
+  showBlock,
+  withCustomBackground,
+} from '../editor.ts'
 
 interface StylePanelProps {
   data: ScoreCardData
@@ -50,13 +55,10 @@ export function StylePanel({
 }: StylePanelProps) {
   const update = (patch: Partial<CardStyle>) => onChange({ ...style, ...patch })
 
-  const onUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const onUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () =>
-      update({ background: 'custom', customBackground: String(reader.result) })
-    reader.readAsDataURL(file)
+    onChange(withCustomBackground(style, await readImageAsDataUrl(file)))
   }
 
   const backgrounds = (Object.keys(BACKGROUND_LABELS) as BackgroundSource[]).filter(
@@ -93,6 +95,10 @@ export function StylePanel({
               <input type="file" accept="image/*" onChange={onUpload} />
             </label>
           </div>
+          <p className="panel__note">
+            Você também pode colar uma imagem com <kbd>Ctrl</kbd>+<kbd>V</kbd>{' '}
+            ou arrastá-la para cima do card.
+          </p>
           {style.background === 'solid' && (
             <label className="panel__row">
               <span>Cor de fundo</span>
