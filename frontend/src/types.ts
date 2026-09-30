@@ -60,6 +60,31 @@ export interface ScoreCardData {
   }
 }
 
+/** The logged-in osu! player, as returned by `GET /api/me`. */
+export interface AuthUser {
+  id: number
+  username: string
+  countryCode: string
+  avatarUrl: string
+}
+
+export type ScoreListType = 'recent' | 'best'
+
+/** One row of the score picker (`GET /api/me/scores`). */
+export interface ScoreSummary {
+  id: number
+  rank: Grade
+  score: { classic: number; standardised: number }
+  accuracy: number
+  maxCombo: number
+  pp: number | null
+  endedAt: string
+  client: 'stable' | 'lazer'
+  mods: string[]
+  beatmap: { id: number; version: string; starRating: number }
+  beatmapset: { id: number; title: string; artist: string; listUrl: string }
+}
+
 export type BackgroundSource = 'beatmap' | 'user' | 'custom' | 'solid'
 
 /** Every block of the card that can be hidden or dragged around. */

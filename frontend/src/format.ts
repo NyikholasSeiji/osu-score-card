@@ -5,6 +5,7 @@ export interface Formatters {
   accuracy: (accuracy: number) => string
   stars: (stars: number) => string
   date: (iso: string) => string
+  shortDate: (iso: string) => string
   length: (seconds: number) => string
 }
 
@@ -23,12 +24,14 @@ export function getFormatters(locale: string): Formatters {
     dateStyle: 'long',
     timeStyle: 'short',
   })
+  const shortDate = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' })
 
   const formatters: Formatters = {
     integer: (value) => integer.format(Math.round(value)),
     accuracy: (accuracy) => `${decimals.format(accuracy * 100)}%`,
     stars: (stars) => decimals.format(stars),
     date: (iso) => dateTime.format(new Date(iso)),
+    shortDate: (iso) => shortDate.format(new Date(iso)),
     length: formatLength,
   }
   cache.set(locale, formatters)

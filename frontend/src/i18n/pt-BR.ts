@@ -21,6 +21,25 @@ export const ptBR: Messages = {
     inputLabel: 'Link ou ID do score',
     generate: 'Gerar card',
     loading: 'Buscando…',
+    or: 'ou',
+  },
+
+  auth: {
+    login: 'Entrar com osu!',
+    loginHint: 'para escolher uma jogada sua',
+    logout: 'Sair',
+    loggedInAs: 'Logado como',
+    picker: 'Suas jogadas',
+    recent: 'Recentes',
+    best: 'Melhores performances',
+    empty: 'Nenhuma jogada de osu! standard por aqui ainda.',
+    loading: 'Carregando suas jogadas…',
+    hide: 'Esconder',
+    show: 'Escolher uma jogada minha',
+    use: 'Usar esta jogada',
+    denied: 'Login cancelado.',
+    failed: 'Não foi possível entrar com o osu!. Tente de novo.',
+    state: 'A sessão de login expirou. Tente de novo.',
   },
 
   actions: {
@@ -37,6 +56,8 @@ export const ptBR: Messages = {
     exportFailed: 'Falha ao exportar a imagem: {error}',
     imageFailed: 'Não foi possível ler a imagem: {error}',
     request: 'Erro {status} ao buscar o score.',
+    NOT_LOGGED_IN: 'Você precisa entrar com o osu! primeiro.',
+    OSU_LOGIN_FAILED: 'Não foi possível entrar com o osu!. Tente de novo.',
     SCORE_NOT_FOUND: 'Score não encontrado.',
     UNSUPPORTED_RULESET:
       'Por enquanto, apenas scores de osu! standard são suportados.',
