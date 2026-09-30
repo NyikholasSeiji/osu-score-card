@@ -16,7 +16,7 @@ OsuScore is a full-stack project built around the osu! API. The application allo
 
 ### Backend
 
-* Node.js 20 or newer
+* Node.js 22 or newer
 * NestJS
 * TypeScript
 
