@@ -8,11 +8,20 @@ import {
   formatLength,
   formatStars,
 } from '../format.ts'
-import type { CardField, CardStyle, ScoreCardData } from '../types.ts'
+import type { CardFont, CardStyle, ScoreCardData } from '../types.ts'
+import { EditorContext, type CardEditor } from '../editor.ts'
+import { Block } from './Block.tsx'
 
 interface ScoreCardProps {
   data: ScoreCardData
   style: CardStyle
+  editor?: CardEditor
+}
+
+const FONTS: Record<CardFont, string> = {
+  sans: "'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif",
+  rounded: "'Nunito', 'Segoe UI', system-ui, sans-serif",
+  mono: "'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
 }
 
 function backgroundImage(data: ScoreCardData, style: CardStyle): string | null {
@@ -29,8 +38,7 @@ function backgroundImage(data: ScoreCardData, style: CardStyle): string | null {
 }
 
 export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
-  function ScoreCard({ data, style }, ref) {
-    const visible = (field: CardField) => !style.hidden.includes(field)
+  function ScoreCard({ data, style, editor }, ref) {
     const image = backgroundImage(data, style)
     const totalScore =
       style.scoreMode === 'classic' ? data.score.classic : data.score.standardised
@@ -39,127 +47,138 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
       '--card-bg': style.backgroundColor,
       '--overlay': style.overlayOpacity,
       '--blur': `${style.blur}px`,
+      '--text': style.textColor,
+      '--radius': `${style.radius}px`,
+      fontFamily: FONTS[style.font],
     } as CSSProperties
 
-    return (
-      <div ref={ref} className={`card card--${style.layout}`} style={cssVars}>
-        <header className="card__header">
-          <h2 className="card__title">
-            {data.beatmapset.title}{' '}
-            <span className="card__artist">por {data.beatmapset.artist}</span>
-          </h2>
-          <p className="card__difficulty">
-            {visible('starRating') && (
-              <span className="card__stars">
-                ★ {formatStars(data.beatmap.starRating)}
-              </span>
-            )}
-            <span>{data.beatmap.version}</span>
-            <span className="card__muted">
-              mapeado por {data.beatmapset.creator}
-            </span>
-          </p>
-        </header>
+    const classes = ['card', `card--${style.layout}`]
+    if (editor) classes.push('card--editing')
 
-        <section className="card__hero">
-          {image && (
-            <div
-              className="card__hero-bg"
-              style={{ backgroundImage: `url("${image}")` }}
-            />
-          )}
-          <div className="card__hero-overlay" />
-          <div className="card__hero-content">
-            <div className={`card__grade card__grade--${data.rank}`}>
-              {GRADE_LABEL[data.rank]}
-            </div>
-            <div className="card__score-block">
-              {visible('mods') && data.mods.length > 0 && (
-                <div className="card__mods">
-                  {data.mods.map((mod) => (
-                    <span key={mod.acronym} className="card__mod">
-                      {mod.acronym}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="card__score">{formatInteger(totalScore)}</div>
-              <dl className="card__meta">
-                {visible('player') && (
-                  <>
+    const context: CardEditor = editor ?? {
+      style,
+      onChange: () => {},
+      selected: null,
+      onSelect: () => {},
+      scale: 1,
+      readOnly: true,
+    }
+
+    return (
+      <EditorContext.Provider value={context}>
+        <div
+          ref={ref}
+          className={classes.join(' ')}
+          style={cssVars}
+          onPointerDown={() => editor?.onSelect(null)}
+        >
+          <header className="card__header">
+            <Block id="header" className="card__heading">
+              <h2 className="card__title">
+                {data.beatmapset.title}{' '}
+                <span className="card__artist">por {data.beatmapset.artist}</span>
+              </h2>
+              <p className="card__difficulty">
+                <span>{data.beatmap.version}</span>
+                <span className="card__muted">
+                  mapeado por {data.beatmapset.creator}
+                </span>
+              </p>
+            </Block>
+            <Block id="starRating" className="card__stars">
+              ★ {formatStars(data.beatmap.starRating)}
+            </Block>
+          </header>
+
+          <section className="card__hero">
+            {image && (
+              <div
+                className="card__hero-bg"
+                style={{ backgroundImage: `url("${image}")` }}
+              />
+            )}
+            <div className="card__hero-overlay" />
+            <div className="card__hero-content">
+              <Block id="grade" className={`card__grade card__grade--${data.rank}`}>
+                {GRADE_LABEL[data.rank]}
+              </Block>
+              <div className="card__score-block">
+                {data.mods.length > 0 && (
+                  <Block id="mods" className="card__mods">
+                    {data.mods.map((mod) => (
+                      <span key={mod.acronym} className="card__mod">
+                        {mod.acronym}
+                      </span>
+                    ))}
+                  </Block>
+                )}
+                <Block id="score" className="card__score">
+                  {formatInteger(totalScore)}
+                </Block>
+                <Block id="meta" className="card__meta">
+                  <dl>
                     <dt>Jogado por</dt>
                     <dd>{data.user.username}</dd>
-                  </>
-                )}
-                {visible('date') && (
-                  <>
                     <dt>Enviado em</dt>
                     <dd>{formatDate(data.endedAt)}</dd>
-                  </>
-                )}
-                {visible('client') && (
-                  <>
                     <dt>Jogado no</dt>
                     <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
-                  </>
-                )}
-                {visible('beatmapInfo') && (
-                  <>
                     <dt>BPM / duração</dt>
                     <dd>
                       {formatInteger(data.beatmap.bpm)} /{' '}
                       {formatLength(data.beatmap.lengthSeconds)}
                     </dd>
-                  </>
+                  </dl>
+                </Block>
+                {data.globalRank !== null && (
+                  <Block id="globalRank" className="card__global-rank">
+                    <span>Ranking global</span>
+                    <strong>#{formatInteger(data.globalRank)}</strong>
+                  </Block>
                 )}
-              </dl>
-              {visible('globalRank') && data.globalRank !== null && (
-                <div className="card__global-rank">
-                  <span>Ranking global</span>
-                  <strong>#{formatInteger(data.globalRank)}</strong>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <footer className="card__footer">
-          {visible('player') && (
-            <div className="card__player">
+          <footer className="card__footer">
+            <Block id="player" className="card__player">
               <img
                 className="card__avatar"
                 src={proxiedImage(data.user.avatarUrl)}
                 alt=""
+                crossOrigin="anonymous"
               />
               <div>
                 <span className="card__country">{data.user.countryCode}</span>
                 <strong className="card__username">{data.user.username}</strong>
               </div>
-            </div>
-          )}
-          <div className="card__stats">
-            <Stat label="Precisão" value={formatAccuracy(data.accuracy)} />
-            <Stat
-              label="Combo máximo"
-              value={`${formatInteger(data.maxCombo)}x`}
-            />
-            {visible('pp') && (
-              <Stat
-                label="PP"
-                value={data.pp === null ? '-' : formatInteger(data.pp)}
-              />
-            )}
-            {visible('statistics') && (
-              <>
+            </Block>
+            <div className="card__stats">
+              <Block id="accuracy" className="card__stat">
+                <Stat label="Precisão" value={formatAccuracy(data.accuracy)} />
+              </Block>
+              <Block id="combo" className="card__stat">
+                <Stat
+                  label="Combo máximo"
+                  value={`${formatInteger(data.maxCombo)}x`}
+                />
+              </Block>
+              <Block id="pp" className="card__stat">
+                <Stat
+                  label="PP"
+                  value={data.pp === null ? '-' : formatInteger(data.pp)}
+                />
+              </Block>
+              <Block id="statistics" className="card__stat-group">
                 <Stat label="Great" value={data.statistics.great} tone="great" />
                 <Stat label="Ok" value={data.statistics.ok} tone="ok" />
                 <Stat label="Meh" value={data.statistics.meh} tone="meh" />
                 <Stat label="Erros" value={data.statistics.miss} tone="miss" />
-              </>
-            )}
-          </div>
-        </footer>
-      </div>
+              </Block>
+            </div>
+          </footer>
+        </div>
+      </EditorContext.Provider>
     )
   },
 )
@@ -174,11 +193,11 @@ function Stat({
   tone?: 'great' | 'ok' | 'meh' | 'miss'
 }) {
   return (
-    <div className="card__stat">
-      <span className={`card__stat-label${tone ? ` card__stat-label--${tone}` : ''}`}>
+    <div className="stat">
+      <span className={`stat__label${tone ? ` stat__label--${tone}` : ''}`}>
         {label}
       </span>
-      <span className="card__stat-value">{value}</span>
+      <span className="stat__value">{value}</span>
     </div>
   )
 }

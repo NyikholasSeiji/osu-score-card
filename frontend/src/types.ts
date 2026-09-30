@@ -62,16 +62,57 @@ export interface ScoreCardData {
 
 export type BackgroundSource = 'beatmap' | 'user' | 'custom' | 'solid'
 
-export type CardField =
+/** Every block of the card that can be hidden or dragged around. */
+export type CardBlock =
+  | 'header'
   | 'starRating'
+  | 'grade'
   | 'mods'
-  | 'pp'
+  | 'score'
+  | 'meta'
   | 'globalRank'
-  | 'date'
-  | 'client'
   | 'player'
+  | 'accuracy'
+  | 'combo'
+  | 'pp'
   | 'statistics'
-  | 'beatmapInfo'
+
+export const CARD_BLOCKS: CardBlock[] = [
+  'header',
+  'starRating',
+  'grade',
+  'mods',
+  'score',
+  'meta',
+  'globalRank',
+  'player',
+  'accuracy',
+  'combo',
+  'pp',
+  'statistics',
+]
+
+export const BLOCK_LABELS: Record<CardBlock, string> = {
+  header: 'Título do mapa',
+  starRating: 'Estrelas',
+  grade: 'Rank',
+  mods: 'Mods',
+  score: 'Pontuação',
+  meta: 'Data, cliente e BPM',
+  globalRank: 'Ranking global',
+  player: 'Jogador',
+  accuracy: 'Precisão',
+  combo: 'Combo',
+  pp: 'PP',
+  statistics: 'Great/Ok/Meh/Erros',
+}
+
+export interface Offset {
+  x: number
+  y: number
+}
+
+export type CardFont = 'sans' | 'rounded' | 'mono'
 
 export interface CardStyle {
   background: BackgroundSource
@@ -80,9 +121,13 @@ export interface CardStyle {
   overlayOpacity: number
   blur: number
   accentColor: string
+  textColor: string
+  font: CardFont
+  radius: number
   layout: 'classic' | 'compact'
   scoreMode: 'classic' | 'standardised'
-  hidden: CardField[]
+  hidden: CardBlock[]
+  offsets: Partial<Record<CardBlock, Offset>>
 }
 
 export const DEFAULT_STYLE: CardStyle = {
@@ -92,7 +137,11 @@ export const DEFAULT_STYLE: CardStyle = {
   overlayOpacity: 0.45,
   blur: 0,
   accentColor: '#ff66aa',
+  textColor: '#ffffff',
+  font: 'sans',
+  radius: 16,
   layout: 'classic',
   scoreMode: 'classic',
   hidden: [],
+  offsets: {},
 }
