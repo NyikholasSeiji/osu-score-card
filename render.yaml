@@ -1,0 +1,22 @@
+# Render Blueprint: one web service that builds the frontend and serves it
+# from the NestJS backend, so the app and /api share a single origin.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: osu-score-card
+    runtime: node
+    plan: free
+    buildCommand: >-
+      npm ci --prefix frontend && npm run build --prefix frontend &&
+      npm ci --prefix backend && npm run build --prefix backend
+    startCommand: cd backend && npm run start:prod
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: STATIC_DIR
+        value: ../frontend/dist
+      - key: OSU_CLIENT_ID
+        sync: false
+      - key: OSU_CLIENT_SECRET
+        sync: false

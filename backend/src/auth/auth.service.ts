@@ -54,10 +54,11 @@ export class AuthService {
           'osu! API credentials are not configured (OSU_CLIENT_ID and OSU_CLIENT_SECRET).',
       });
     }
-    const appUrl = (process.env.APP_URL ?? 'http://localhost:5173').replace(
-      /\/+$/,
-      '',
-    );
+    const appUrl = (
+      process.env.APP_URL ??
+      process.env.RENDER_EXTERNAL_URL ??
+      'http://localhost:5173'
+    ).replace(/\/+$/, '');
     return {
       clientId,
       clientSecret,

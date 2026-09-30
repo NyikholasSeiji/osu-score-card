@@ -94,6 +94,17 @@ npm run dev
 
 The Vite dev server proxies `/api` to `http://localhost:3000`. Paste a score link (e.g. `https://osu.ppy.sh/scores/1485666113`), adjust the appearance and download the card as PNG. Score data is read-only; only the background, colors, layout and visible fields can be changed.
 
+## Deploying (Render)
+
+Both apps are deployed as **one** Render web service: the build compiles the frontend and the backend, and the backend serves the frontend's `dist/` (`STATIC_DIR`) alongside `/api`, so the session cookie stays on a single origin. `render.yaml` at the repository root describes the service:
+
+1. On Render, choose **New → Blueprint**, pick this repository and apply. Fill in `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET` when prompted (`APP_URL` is not needed: the backend falls back to `RENDER_EXTERNAL_URL`).
+2. On https://osu.ppy.sh/home/account/edit#oauth set the **Application Callback URL** to `https://<your-service>.onrender.com/api/auth/osu/callback`.
+
+The same layout works anywhere else: build both apps, then start the backend with `STATIC_DIR=../frontend/dist` and `APP_URL=https://<public-url>`.
+
+Login sessions are kept in memory, so a restart (or the free plan spinning down) logs everyone out; generating a card from a link never needs a login.
+
 ## Development
 
 The project is divided into two independent applications:
