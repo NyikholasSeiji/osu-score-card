@@ -20,7 +20,8 @@ export const en = {
     generate: 'Generate card',
     loading: 'Loading…',
     startLabel: 'Start here',
-    startHint: 'Paste a score link in the search bar above',
+    startHint:
+      'Any osu! standard score works — even a random ID, if you want to dig up an unusual old play.',
     readyLabel: 'Card ready',
     scoreId: 'Score #{id}',
   },
@@ -29,6 +30,11 @@ export const en = {
     home: 'Home',
     myPlays: 'My plays',
     github: 'GitHub',
+  },
+
+  topbar: {
+    playerSearch: 'Search a player and pick a play',
+    soon: 'Soon',
   },
 
   auth: {
@@ -41,6 +47,7 @@ export const en = {
     best: 'Top performances',
     empty: 'No osu! standard plays here yet.',
     loading: 'Loading your plays…',
+    checking: 'Checking login…',
     hide: 'Hide',
     show: 'Pick one of my plays',
     use: 'Use this play',

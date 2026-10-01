@@ -5,6 +5,7 @@ import {
   useState,
   type DragEvent,
   type FormEvent,
+  type MouseEvent,
 } from 'react'
 import { toPng } from 'html-to-image'
 import {
@@ -112,7 +113,7 @@ function Generator() {
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [dropping, setDropping] = useState(false)
-  const [user, setUser] = useState<AuthUser | null>(null)
+  const [user, setUser] = useState<AuthUser | null | undefined>(undefined)
   const [authStatus] = useState(consumeAuthStatus)
   const [authNotice, setAuthNotice] = useState<AuthStatus | null>(
     authStatus && authStatus !== 'ok' ? authStatus : null,
@@ -253,6 +254,19 @@ function Generator() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [selected])
 
+  const goHome = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey)
+      return
+    event.preventDefault()
+    setData(null)
+    setSelected(null)
+    setError(null)
+    setAuthNotice(null)
+    setPickerOpen(false)
+    setInput('')
+    window.scrollTo({ top: 0 })
+  }
+
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
     const id = parseScoreId(input)
@@ -261,7 +275,7 @@ function Generator() {
       return
     }
     setAuthNotice(null)
-    await loadCard(id)
+    if (await loadCard(id)) setPickerOpen(false)
   }
 
   const onExport = async () => {
@@ -294,7 +308,12 @@ function Generator() {
   const fmt = getFormatters(t.locale)
   const togglePicker = () => setPickerOpen((open) => !open)
 
-  const account = user ? (
+  const account = user === undefined ? (
+    <div className="account account--pending" aria-busy="true">
+      <span className="account__avatar" />
+      <span className="account__name">{t.auth.checking}</span>
+    </div>
+  ) : user ? (
     <div className="account">
       <img
         className="account__avatar"
@@ -337,10 +356,26 @@ function Generator() {
     </label>
   )
 
+  const searchForm = (
+    <form className="search hero__search" onSubmit={onSubmit}>
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder={t.intro.placeholder}
+        aria-label={t.intro.inputLabel}
+        inputMode="url"
+        autoComplete="off"
+      />
+      <button type="submit" className="search__submit" disabled={loading}>
+        {loading ? <span className="spinner" /> : t.intro.generate}
+      </button>
+    </form>
+  )
+
   return (
     <div className="app">
       <aside className="sidebar">
-        <a className="brand" href="/">
+        <a className="brand" href="/" onClick={goHome}>
           <img src="/favicon.svg" alt="" width={30} height={30} />
           <span>
             osu!<b>card</b>
@@ -351,15 +386,17 @@ function Generator() {
           <a
             className={`nav__item${pickerOpen ? '' : ' nav__item--active'}`}
             href="/"
+            onClick={goHome}
           >
             <HomeIcon />
             {t.nav.home}
           </a>
-          {user ? (
+          {user !== null ? (
             <button
               type="button"
               className={`nav__item${pickerOpen ? ' nav__item--active' : ''}`}
               aria-expanded={pickerOpen}
+              disabled={!user}
               onClick={togglePicker}
             >
               <ListIcon />
@@ -391,25 +428,15 @@ function Generator() {
 
       <div className="content">
         <header className="topbar">
-          <form className="search" onSubmit={onSubmit}>
+          <div className="search search--soon">
+            <SearchIcon />
             <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={t.intro.placeholder}
-              aria-label={t.intro.inputLabel}
-              inputMode="url"
-              autoComplete="off"
+              disabled
+              placeholder={t.topbar.playerSearch}
+              aria-label={t.topbar.playerSearch}
             />
-            <button
-              type="submit"
-              className="search__go"
-              disabled={loading}
-              aria-label={t.intro.generate}
-              title={t.intro.generate}
-            >
-              {loading ? <span className="spinner" /> : <ArrowIcon />}
-            </button>
-          </form>
+            <span className="search__badge">{t.topbar.soon}</span>
+          </div>
           <div className="topbar__right">
             {language}
             {account}
@@ -458,13 +485,16 @@ function Generator() {
                       {fmt.shortDate(data.endedAt)}
                     </span>
                   </div>
+                  {searchForm}
                 </>
               ) : (
                 <>
                   <h1 className="hero__title">{t.intro.heading}</h1>
                   <p className="hero__lead">{t.intro.lead}</p>
+                  {searchForm}
+                  <p className="hero__hint">{t.intro.startHint}</p>
                   <div className="hero__actions">
-                    {user ? (
+                    {user === undefined ? null : user ? (
                       <button
                         type="button"
                         className="button"
@@ -480,7 +510,6 @@ function Generator() {
                         {t.auth.login}
                       </a>
                     )}
-                    <span className="hero__mono">{t.intro.startHint}</span>
                   </div>
                 </>
               )}
@@ -638,10 +667,11 @@ function GithubIcon() {
   )
 }
 
-function ArrowIcon() {
+function SearchIcon() {
   return (
     <svg {...icon}>
-      <path d="M5 12h14M13 6l6 6-6 6" />
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
     </svg>
   )
 }

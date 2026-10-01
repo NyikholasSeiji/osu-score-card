@@ -91,6 +91,12 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
           </header>
 
           <section className="card__hero">
+            {image && style.blur > 0 && (
+              <div
+                className="card__hero-bg card__hero-bg--bleed"
+                style={{ backgroundImage: `url("${image}")` }}
+              />
+            )}
             {image && (
               <div
                 className="card__hero-bg"

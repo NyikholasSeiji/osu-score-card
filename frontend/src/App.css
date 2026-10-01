@@ -60,6 +60,11 @@
   transition: background 0.15s, color 0.15s;
 }
 
+.nav__item:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
 .nav__item:hover {
   background: var(--surface-2);
   color: var(--text);
@@ -136,6 +141,24 @@
   color: var(--pink);
 }
 
+.account--pending {
+  min-height: 54px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.account--pending .account__avatar {
+  width: 36px;
+  height: 36px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
 .lang select {
   width: 100%;
   padding: 8px 10px;
@@ -168,7 +191,7 @@
   min-width: 0;
 }
 
-/* ---------- Topbar: the score link is the "search" ---------- */
+/* ---------- Topbar: reserved for player search (coming soon) ---------- */
 
 .topbar {
   position: sticky;
@@ -219,28 +242,56 @@
   color: var(--muted);
 }
 
-.search__go {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+.search__submit {
+  padding: 8px 16px;
   border: 0;
-  border-radius: 50%;
-  background: var(--surface-3);
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.search:focus-within .search__go,
-.search__go:hover:not(:disabled) {
+  border-radius: 999px;
   background: var(--pink);
   color: #1c1719;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
 }
 
-.search__go:disabled {
+.search__submit:hover:not(:disabled) {
+  background: var(--pink-hover);
+}
+
+.search__submit:disabled {
   cursor: progress;
+}
+
+.search__submit .spinner {
+  display: block;
+  margin: 2px 14px;
+}
+
+.search--soon {
+  gap: 10px;
+  padding-right: 10px;
+  color: var(--muted);
+  background: var(--bg-2);
+}
+
+.search--soon input {
+  cursor: not-allowed;
+}
+
+.search--soon input::placeholder {
+  color: rgb(154 154 166 / 0.7);
+}
+
+.search__badge {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .spinner {
@@ -352,6 +403,16 @@
   align-items: center;
   gap: 8px 18px;
   margin-top: 6px;
+}
+
+.hero__search {
+  max-width: 560px;
+}
+
+.hero__hint {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .hero__mono {
@@ -1127,10 +1188,15 @@
 
 .card__hero-bg {
   position: absolute;
-  inset: calc(var(--blur) * -2);
+  inset: 0;
   background-size: cover;
   background-position: center;
   filter: blur(var(--blur));
+}
+
+/* Same image, oversized and blurred, only to fill the soft edges of the 1:1 layer above. */
+.card__hero-bg--bleed {
+  inset: calc(var(--blur) * -3);
 }
 
 .card__hero-overlay {

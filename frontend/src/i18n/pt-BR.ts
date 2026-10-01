@@ -22,7 +22,8 @@ export const ptBR: Messages = {
     generate: 'Gerar card',
     loading: 'Buscando…',
     startLabel: 'Comece aqui',
-    startHint: 'Cole o link de um score na busca acima',
+    startHint:
+      'Vale qualquer score de osu! standard — até um ID aleatório, se quiser garimpar uma jogada antiga inusitada.',
     readyLabel: 'Card pronto',
     scoreId: 'Score #{id}',
   },
@@ -31,6 +32,11 @@ export const ptBR: Messages = {
     home: 'Início',
     myPlays: 'Minhas jogadas',
     github: 'GitHub',
+  },
+
+  topbar: {
+    playerSearch: 'Pesquisar um jogador e escolher uma jogada',
+    soon: 'Em breve',
   },
 
   auth: {
@@ -43,6 +49,7 @@ export const ptBR: Messages = {
     best: 'Melhores performances',
     empty: 'Nenhuma jogada de osu! standard por aqui ainda.',
     loading: 'Carregando suas jogadas…',
+    checking: 'Verificando login…',
     hide: 'Esconder',
     show: 'Escolher uma jogada minha',
     use: 'Usar esta jogada',
