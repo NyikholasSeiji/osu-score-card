@@ -21,7 +21,16 @@ export const ptBR: Messages = {
     inputLabel: 'Link ou ID do score',
     generate: 'Gerar card',
     loading: 'Buscando…',
-    or: 'ou',
+    startLabel: 'Comece aqui',
+    startHint: 'Cole o link de um score na busca acima',
+    readyLabel: 'Card pronto',
+    scoreId: 'Score #{id}',
+  },
+
+  nav: {
+    home: 'Início',
+    myPlays: 'Minhas jogadas',
+    github: 'GitHub',
   },
 
   auth: {
