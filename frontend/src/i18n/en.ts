@@ -19,7 +19,16 @@ export const en = {
     inputLabel: 'Score link or ID',
     generate: 'Generate card',
     loading: 'Loading…',
-    or: 'or',
+    startLabel: 'Start here',
+    startHint: 'Paste a score link in the search bar above',
+    readyLabel: 'Card ready',
+    scoreId: 'Score #{id}',
+  },
+
+  nav: {
+    home: 'Home',
+    myPlays: 'My plays',
+    github: 'GitHub',
   },
 
   auth: {

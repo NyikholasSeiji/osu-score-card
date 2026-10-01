@@ -1,16 +1,25 @@
 :root {
-  --bg: #16121a;
-  --bg-2: #1f1824;
-  --surface: #261e2c;
-  --surface-2: #322838;
-  --border: #4a3d52;
-  --text: #f4ecf2;
-  --muted: #b5a5b3;
+  --bg: #0c0c10;
+  --bg-2: #111117;
+  --surface: #16161d;
+  --surface-2: #1f1f28;
+  --surface-3: #292935;
+  --border: rgb(255 255 255 / 0.08);
+  --border-strong: rgb(255 255 255 / 0.16);
+  --text: #f3f3f6;
+  --muted: #9a9aa6;
   --pink: #ff66aa;
-  --pink-dark: #d94b8a;
+  --pink-hover: #ff7ab6;
+  --pink-soft: rgb(255 102 170 / 0.14);
+  --purple: #8c66ff;
+  --green: #4ade80;
   --shadow: 0 18px 50px rgb(0 0 0 / 0.45);
+  --radius: 12px;
+  --sidebar: 240px;
 
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
   color: var(--text);
   background: var(--bg);
   color-scheme: dark;
@@ -28,11 +37,7 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(900px 500px at 15% -10%, rgb(255 102 170 / 0.22), transparent 60%),
-    radial-gradient(700px 500px at 100% 0%, rgb(134 59 255 / 0.18), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
 }
 
 button,
@@ -45,9 +50,14 @@ a {
   color: var(--pink);
 }
 
+:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
 kbd {
   padding: 1px 6px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-bottom-width: 2px;
   border-radius: 4px;
   background: var(--surface-2);
