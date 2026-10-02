@@ -35,8 +35,18 @@ export const ptBR: Messages = {
   },
 
   topbar: {
-    playerSearch: 'Pesquisar um jogador e escolher uma jogada',
-    soon: 'Em breve',
+    playerSearch: 'Pesquisar um jogador (ex.: mrekk)…',
+    searching: 'Pesquisando…',
+    noResults: 'Nenhum jogador com esse nome.',
+    searchFailed: 'Não foi possível pesquisar jogadores agora.',
+  },
+
+  player: {
+    viewing: 'Vendo as jogadas de',
+    profile: 'Perfil no osu!',
+    close: 'Fechar',
+    empty: 'Nenhuma jogada de osu! standard por aqui ainda.',
+    loading: 'Carregando jogadas…',
   },
 
   auth: {
@@ -47,8 +57,6 @@ export const ptBR: Messages = {
     picker: 'Suas jogadas',
     recent: 'Recentes',
     best: 'Melhores performances',
-    empty: 'Nenhuma jogada de osu! standard por aqui ainda.',
-    loading: 'Carregando suas jogadas…',
     checking: 'Verificando login…',
     hide: 'Esconder',
     show: 'Escolher uma jogada minha',
@@ -78,6 +86,7 @@ export const ptBR: Messages = {
     UNSUPPORTED_RULESET:
       'Por enquanto, apenas scores de osu! standard são suportados.',
     OSU_API_FAILED: 'Falha ao consultar a API do osu!.',
+    PLAYER_NOT_FOUND: 'Jogador não encontrado.',
     OSU_CREDENTIALS_MISSING:
       'Credenciais da API do osu! não configuradas no servidor (OSU_CLIENT_ID e OSU_CLIENT_SECRET).',
   },

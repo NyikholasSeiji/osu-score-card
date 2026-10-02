@@ -1,12 +1,10 @@
 import {
-  BadGatewayException,
   Injectable,
   Logger,
-  NotFoundException,
-  ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { API, APIError, Ruleset } from 'osu-api-v2-js';
+import { Ruleset } from 'osu-api-v2-js';
+import { OsuClient } from '../osu/osu-client.js';
 import { affectsDifficulty, ScoreCard, toScoreCard } from './score-card.js';
 
 const CACHE_TTL_MS = 10 * 60 * 1000;
@@ -19,7 +17,8 @@ export class ScoresService {
     number,
     { expiresAt: number; card: ScoreCard }
   >();
-  private api?: API;
+
+  constructor(private readonly osu: OsuClient) {}
 
   async getScoreCard(scoreId: number): Promise<ScoreCard> {
     const cached = this.cache.get(scoreId);
@@ -27,9 +26,9 @@ export class ScoresService {
       return cached.card;
     }
 
-    const api = this.getApi();
+    const api = this.osu.get();
     const score = await api.getScore(scoreId).catch((error: unknown) => {
-      throw this.toHttpException(error, {
+      throw this.osu.toHttpException(error, {
         code: 'SCORE_NOT_FOUND',
         message: 'Score not found.',
       });
@@ -62,41 +61,11 @@ export class ScoresService {
     return card;
   }
 
-  private getApi(): API {
-    if (!this.api) {
-      const clientId = Number(process.env.OSU_CLIENT_ID);
-      const clientSecret = process.env.OSU_CLIENT_SECRET;
-      if (!clientId || !clientSecret) {
-        throw new ServiceUnavailableException({
-          code: 'OSU_CREDENTIALS_MISSING',
-          message:
-            'osu! API credentials are not configured (OSU_CLIENT_ID and OSU_CLIENT_SECRET).',
-        });
-      }
-      this.api = new API(clientId, clientSecret);
-    }
-    return this.api;
-  }
-
   private remember(scoreId: number, card: ScoreCard): void {
     if (this.cache.size >= CACHE_MAX_ENTRIES) {
       const oldestKey = this.cache.keys().next().value;
       if (oldestKey !== undefined) this.cache.delete(oldestKey);
     }
     this.cache.set(scoreId, { expiresAt: Date.now() + CACHE_TTL_MS, card });
-  }
-
-  private toHttpException(
-    error: unknown,
-    notFound: { code: string; message: string },
-  ): Error {
-    if (error instanceof APIError && error.response?.status_code === 404) {
-      return new NotFoundException(notFound);
-    }
-    this.logger.error(`osu! API request failed: ${String(error)}`);
-    return new BadGatewayException({
-      code: 'OSU_API_FAILED',
-      message: 'Could not reach the osu! API.',
-    });
   }
 }

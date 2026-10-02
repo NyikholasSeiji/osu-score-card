@@ -191,7 +191,7 @@
   min-width: 0;
 }
 
-/* ---------- Topbar: reserved for player search (coming soon) ---------- */
+/* ---------- Topbar: player search ---------- */
 
 .topbar {
   position: sticky;
@@ -268,30 +268,119 @@
   margin: 2px 14px;
 }
 
-.search--soon {
+.search--player {
+  position: relative;
   gap: 10px;
-  padding-right: 10px;
+  padding-right: 14px;
   color: var(--muted);
-  background: var(--bg-2);
 }
 
-.search--soon input {
-  cursor: not-allowed;
+.search--player:focus-within {
+  color: var(--text);
 }
 
-.search--soon input::placeholder {
-  color: rgb(154 154 166 / 0.7);
+.search__spinner {
+  flex-shrink: 0;
+  color: var(--muted);
 }
 
-.search__badge {
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 11px;
+.suggest {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.suggest__status {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.suggest__item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggest__item--active {
+  background: var(--surface-2);
+}
+
+.suggest__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--surface-3);
+}
+
+.suggest__name {
+  overflow: hidden;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggest__country,
+.player-head__flag {
+  width: 24px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.player-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-head__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface-3);
+}
+
+.player-head__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.player-head__label {
+  color: var(--muted);
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  white-space: nowrap;
+}
+
+.player-head__flag {
+  vertical-align: -1px;
 }
 
 .spinner {

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { fetchMyScores, proxiedImage } from '../api.ts'
+import { proxiedImage } from '../api.ts'
 import { GRADE_LABEL, getFormatters } from '../format.ts'
 import { translateError, useI18n, type UiError } from '../i18n/index.ts'
 import type { ScoreListType, ScoreSummary } from '../types.ts'
 
 interface Props {
+  /** Loads one list; the component caches each type until it is remounted. */
+  fetchScores: (type: ScoreListType) => Promise<ScoreSummary[]>
   onPick: (score: ScoreSummary) => void
   picking: number | null
   toUiError: (err: unknown) => UiError
@@ -12,8 +14,8 @@ interface Props {
 
 const LIST_TYPES: ScoreListType[] = ['recent', 'best']
 
-/** Lists the logged-in player's recent/best plays so one can be turned into a card. */
-export function ScorePicker({ onPick, picking, toUiError }: Props) {
+/** Lists a player's recent/best plays so one can be turned into a card. */
+export function ScorePicker({ fetchScores, onPick, picking, toUiError }: Props) {
   const { t } = useI18n()
   const fmt = getFormatters(t.locale)
   const [type, setType] = useState<ScoreListType>('recent')
@@ -27,7 +29,7 @@ export function ScorePicker({ onPick, picking, toUiError }: Props) {
   useEffect(() => {
     if (scores) return
     let cancelled = false
-    fetchMyScores(type)
+    fetchScores(type)
       .then((list) => {
         if (!cancelled) setLists((prev) => ({ ...prev, [type]: list }))
       })
@@ -37,7 +39,7 @@ export function ScorePicker({ onPick, picking, toUiError }: Props) {
     return () => {
       cancelled = true
     }
-  }, [type, scores, toUiError])
+  }, [type, scores, fetchScores, toUiError])
 
   return (
     <section className="picker" aria-label={t.auth.picker}>
@@ -64,9 +66,9 @@ export function ScorePicker({ onPick, picking, toUiError }: Props) {
           {translateError(t, error)}
         </p>
       )}
-      {!error && !scores && <p className="picker__status">{t.auth.loading}</p>}
+      {!error && !scores && <p className="picker__status">{t.player.loading}</p>}
       {scores && scores.length === 0 && (
-        <p className="picker__status">{t.auth.empty}</p>
+        <p className="picker__status">{t.player.empty}</p>
       )}
 
       {scores && scores.length > 0 && (

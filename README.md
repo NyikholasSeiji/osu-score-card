@@ -81,6 +81,7 @@ Endpoints:
 * `GET /api/images?url=` — proxy for `assets.ppy.sh`, `a.ppy.sh` and `osu.ppy.sh` images so the card can be exported as PNG.
 * `GET /api/auth/osu` — starts the osu! OAuth login; `GET /api/auth/osu/callback` finishes it and redirects back to `APP_URL`; `POST /api/auth/logout` revokes the token.
 * `GET /api/me` — the logged-in user; `GET /api/me/scores?type=recent|best` — their osu! standard scores for the picker (each one is then loaded through `GET /api/scores/:id`).
+* `GET /api/users/search?q=` — public player search (at least 2 characters, up to 8 results); `GET /api/users/:id/scores?type=recent|best` — that player's public osu! standard scores for the picker. No login needed: both use the app credentials.
 
 ### Frontend
 

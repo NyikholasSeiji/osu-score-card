@@ -60,17 +60,20 @@ export interface ScoreCardData {
   }
 }
 
-/** The logged-in osu! player, as returned by `GET /api/me`. */
-export interface AuthUser {
+/** An osu! player, as returned by `GET /api/users/search`. */
+export interface Player {
   id: number
   username: string
   countryCode: string
   avatarUrl: string
 }
 
+/** The logged-in osu! player, as returned by `GET /api/me`. */
+export type AuthUser = Player
+
 export type ScoreListType = 'recent' | 'best'
 
-/** One row of the score picker (`GET /api/me/scores`). */
+/** One row of the score picker (`GET /api/me/scores`, `GET /api/users/:id/scores`). */
 export interface ScoreSummary {
   id: number
   rank: Grade

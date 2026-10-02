@@ -54,3 +54,8 @@ export const GRADE_LABEL: Record<Grade, string> = {
   D: 'D',
   F: 'F',
 }
+
+/** osu!'s own flag image for an ISO 3166-1 alpha-2 country code. */
+export function flagUrl(countryCode: string): string {
+  return `https://assets.ppy.sh/old-flags/${countryCode.toUpperCase()}.png`
+}

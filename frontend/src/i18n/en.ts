@@ -33,8 +33,18 @@ export const en = {
   },
 
   topbar: {
-    playerSearch: 'Search a player and pick a play',
-    soon: 'Soon',
+    playerSearch: 'Search a player (e.g. mrekk)…',
+    searching: 'Searching…',
+    noResults: 'No player with that name.',
+    searchFailed: 'Could not search players right now.',
+  },
+
+  player: {
+    viewing: 'Browsing the plays of',
+    profile: 'Profile on osu!',
+    close: 'Close',
+    empty: 'No osu! standard plays here yet.',
+    loading: 'Loading plays…',
   },
 
   auth: {
@@ -45,8 +55,6 @@ export const en = {
     picker: 'Your plays',
     recent: 'Recent',
     best: 'Top performances',
-    empty: 'No osu! standard plays here yet.',
-    loading: 'Loading your plays…',
     checking: 'Checking login…',
     hide: 'Hide',
     show: 'Pick one of my plays',
@@ -75,6 +83,7 @@ export const en = {
     SCORE_NOT_FOUND: 'Score not found.',
     UNSUPPORTED_RULESET: 'Only osu! standard scores are supported for now.',
     OSU_API_FAILED: 'Could not reach the osu! API.',
+    PLAYER_NOT_FOUND: 'Player not found.',
     OSU_CREDENTIALS_MISSING:
       'osu! API credentials are not configured on the server (OSU_CLIENT_ID and OSU_CLIENT_SECRET).',
   },

@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -12,6 +13,8 @@ import {
   ApiError,
   LOGIN_URL,
   fetchMe,
+  fetchMyScores,
+  fetchPlayerScores,
   fetchScoreCard,
   logout,
   parseScoreId,
@@ -25,10 +28,11 @@ import {
   withCustomBackground,
   type CardEditor,
 } from './editor.ts'
+import { PlayerSearch } from './components/PlayerSearch.tsx'
 import { ScoreCard } from './components/ScoreCard.tsx'
 import { ScorePicker } from './components/ScorePicker.tsx'
 import { StylePanel } from './components/StylePanel.tsx'
-import { getFormatters } from './format.ts'
+import { flagUrl, getFormatters } from './format.ts'
 import {
   I18nContext,
   LANGUAGES,
@@ -47,7 +51,9 @@ import {
   type AuthUser,
   type CardBlock,
   type CardStyle,
+  type Player,
   type ScoreCardData,
+  type ScoreListType,
   type ScoreSummary,
 } from './types.ts'
 import './App.css'
@@ -120,6 +126,8 @@ function Generator() {
   )
   const [pickerOpen, setPickerOpen] = useState(false)
   const [picking, setPicking] = useState<number | null>(null)
+  const [player, setPlayer] = useState<Player | null>(null)
+  const pickerRef = useRef<HTMLElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const { stageRef, scale, height } = useCardScale(cardRef, [data, style])
 
@@ -166,8 +174,30 @@ function Generator() {
       return
     }
     setUser(null)
+    if (!player) setPickerOpen(false)
+  }
+
+  const onPickPlayer = (next: Player) => {
+    setPlayer(next)
+    setPickerOpen(true)
+    setAuthNotice(null)
+    setError(null)
+  }
+
+  const closePlayer = () => {
+    setPlayer(null)
     setPickerOpen(false)
   }
+
+  useEffect(() => {
+    if (player) pickerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [player])
+
+  const fetchPickerScores = useCallback(
+    (type: ScoreListType) =>
+      player ? fetchPlayerScores(player.id, type) : fetchMyScores(type),
+    [player],
+  )
 
   const applyImageFile = async (file: File) => {
     try {
@@ -263,6 +293,7 @@ function Generator() {
     setError(null)
     setAuthNotice(null)
     setPickerOpen(false)
+    setPlayer(null)
     setInput('')
     window.scrollTo({ top: 0 })
   }
@@ -306,7 +337,11 @@ function Generator() {
   const changed = JSON.stringify(style) !== JSON.stringify(DEFAULT_STYLE)
 
   const fmt = getFormatters(t.locale)
-  const togglePicker = () => setPickerOpen((open) => !open)
+  const myPlaysOpen = pickerOpen && !player
+  const toggleMyPlays = () => {
+    setPlayer(null)
+    setPickerOpen(!myPlaysOpen)
+  }
 
   const account = user === undefined ? (
     <div className="account account--pending" aria-busy="true">
@@ -394,10 +429,10 @@ function Generator() {
           {user !== null ? (
             <button
               type="button"
-              className={`nav__item${pickerOpen ? ' nav__item--active' : ''}`}
-              aria-expanded={pickerOpen}
+              className={`nav__item${myPlaysOpen ? ' nav__item--active' : ''}`}
+              aria-expanded={myPlaysOpen}
               disabled={!user}
-              onClick={togglePicker}
+              onClick={toggleMyPlays}
             >
               <ListIcon />
               {t.nav.myPlays}
@@ -428,15 +463,7 @@ function Generator() {
 
       <div className="content">
         <header className="topbar">
-          <div className="search search--soon">
-            <SearchIcon />
-            <input
-              disabled
-              placeholder={t.topbar.playerSearch}
-              aria-label={t.topbar.playerSearch}
-            />
-            <span className="search__badge">{t.topbar.soon}</span>
-          </div>
+          <PlayerSearch onPick={onPickPlayer} />
           <div className="topbar__right">
             {language}
             {account}
@@ -498,11 +525,11 @@ function Generator() {
                       <button
                         type="button"
                         className="button"
-                        aria-expanded={pickerOpen}
-                        onClick={togglePicker}
+                        aria-expanded={myPlaysOpen}
+                        onClick={toggleMyPlays}
                       >
                         <ListIcon />
-                        {pickerOpen ? t.auth.hide : t.auth.show}
+                        {myPlaysOpen ? t.auth.hide : t.auth.show}
                       </button>
                     ) : (
                       <a className="button" href={LOGIN_URL}>
@@ -523,10 +550,54 @@ function Generator() {
             </div>
           </section>
 
-          {user && pickerOpen && (
-            <section className="section">
-              <h2 className="section__title">{t.auth.picker}</h2>
+          {pickerOpen && (player || user) && (
+            <section className="section" ref={pickerRef}>
+              {player ? (
+                <div className="player-head">
+                  <img
+                    className="player-head__avatar"
+                    src={player.avatarUrl}
+                    alt=""
+                    width={44}
+                    height={44}
+                  />
+                  <div className="player-head__text">
+                    <span className="player-head__label">{t.player.viewing}</span>
+                    <h2 className="section__title">
+                      {player.username}{' '}
+                      <img
+                        className="player-head__flag"
+                        src={flagUrl(player.countryCode)}
+                        alt={player.countryCode}
+                        title={player.countryCode}
+                        width={24}
+                        height={16}
+                      />
+                    </h2>
+                  </div>
+                  <a
+                    className="button button--ghost"
+                    href={`https://osu.ppy.sh/users/${player.id}/osu`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t.player.profile}
+                  </a>
+                  <button
+                    type="button"
+                    className="button button--ghost"
+                    onClick={closePlayer}
+                    aria-label={t.player.close}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <h2 className="section__title">{t.auth.picker}</h2>
+              )}
               <ScorePicker
+                key={player ? `player-${player.id}` : 'me'}
+                fetchScores={fetchPickerScores}
                 onPick={onPick}
                 picking={picking}
                 toUiError={toUiError}
@@ -663,15 +734,6 @@ function GithubIcon() {
   return (
     <svg {...icon}>
       <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />
-    </svg>
-  )
-}
-
-function SearchIcon() {
-  return (
-    <svg {...icon}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
     </svg>
   )
 }
