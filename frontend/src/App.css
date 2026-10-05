@@ -1353,8 +1353,8 @@
 }
 
 /* Two-letter grades fit the same slot as single letters. */
-.card__grade--XH,
-.card__grade--X {
+.card__grade.card__grade--XH,
+.card__grade.card__grade--X {
   font-size: 124px;
   letter-spacing: -0.06em;
 }
