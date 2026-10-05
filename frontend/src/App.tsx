@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type DragEvent,
   type FormEvent,
   type MouseEvent,
@@ -683,7 +684,12 @@ function Generator() {
                 <div className="stage" ref={stageRef} style={{ height }}>
                   <div
                     className="stage__inner"
-                    style={{ transform: `scale(${scale})` }}
+                    style={
+                      {
+                        transform: `scale(${scale})`,
+                        '--editor-scale': scale,
+                      } as CSSProperties
+                    }
                   >
                     <SkinContext value={skinStore.skin}>
                       <ScoreCard
