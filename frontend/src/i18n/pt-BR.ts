@@ -69,6 +69,8 @@ export const ptBR: Messages = {
   actions: {
     download: 'Baixar PNG',
     exporting: 'Exportando…',
+    undo: 'Desfazer',
+    redo: 'Refazer',
     reset: 'Restaurar padrão',
     viewOnOsu: 'Ver no osu!',
     hidden: 'Escondidos:',

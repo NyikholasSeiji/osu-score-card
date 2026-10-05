@@ -66,20 +66,24 @@ export function Block({ id, className, children }: BlockProps) {
     const dy = (event.clientY - current.startY) / editor.scale
     if (!current.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
     current.moved = true
-    editor.onChange({
-      ...editor.style,
-      offsets: {
-        ...editor.style.offsets,
-        [id]: {
-          x: Math.round(current.baseX + dx),
-          y: Math.round(current.baseY + dy),
+    editor.onChange(
+      {
+        ...editor.style,
+        offsets: {
+          ...editor.style.offsets,
+          [id]: {
+            x: Math.round(current.baseX + dx),
+            y: Math.round(current.baseY + dy),
+          },
         },
       },
-    })
+      `drag:${id}`,
+    )
   }
 
   const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.pointerId !== event.pointerId) return
+    if (drag.current.moved) editor?.endGesture()
     drag.current = null
     event.currentTarget.releasePointerCapture(event.pointerId)
   }

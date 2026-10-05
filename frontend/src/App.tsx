@@ -20,8 +20,13 @@ import {
   parseScoreId,
 } from './api.ts'
 import {
+  endGesture,
   hideBlock,
   imageFromTransfer,
+  initialHistory,
+  pushStyle,
+  redoStyle,
+  undoStyle,
   readImageAsDataUrl,
   resetOffset,
   showBlock,
@@ -114,7 +119,20 @@ function Generator() {
   const { lang, setLang, t } = useI18n()
   const [input, setInput] = useState('')
   const [data, setData] = useState<ScoreCardData | null>(null)
-  const [style, setStyle] = useState<CardStyle>(DEFAULT_STYLE)
+  const [history, setHistory] = useState(() => initialHistory(DEFAULT_STYLE))
+  const style = history.present
+  const setStyle = useCallback(
+    (update: CardStyle | ((current: CardStyle) => CardStyle), gesture?: string) =>
+      setHistory((h) =>
+        pushStyle(h, typeof update === 'function' ? update(h.present) : update, gesture),
+      ),
+    [],
+  )
+  const finishGesture = useCallback(() => setHistory(endGesture), [])
+  const undo = () => setHistory(undoStyle)
+  const redo = () => setHistory(redoStyle)
+  const canUndo = history.past.length > 0
+  const canRedo = history.future.length > 0
   const [selected, setSelected] = useState<CardBlock | null>(null)
   const [error, setError] = useState<UiError | null>(null)
   const [loading, setLoading] = useState(false)
@@ -148,6 +166,7 @@ function Generator() {
     try {
       setData(await fetchScoreCard(id))
       setSelected(null)
+      setHistory((h) => initialHistory(h.present))
       return true
     } catch (err) {
       setError(toUiError(err))
@@ -238,9 +257,28 @@ function Generator() {
   }
 
   useEffect(() => {
+    if (!data) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.target as HTMLElement).matches('input, select, textarea')) return
+      if (!(event.ctrlKey || event.metaKey)) return
+      const key = event.key.toLowerCase()
+      if (key === 'z') {
+        event.preventDefault()
+        setHistory(event.shiftKey ? redoStyle : undoStyle)
+      } else if (key === 'y') {
+        event.preventDefault()
+        setHistory(redoStyle)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [data])
+
+  useEffect(() => {
     if (!selected) return
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.target as HTMLElement).matches('input, select, textarea')) return
+      if (event.ctrlKey || event.metaKey) return
       const block = selected
       const nudge = (dx: number, dy: number) => {
         event.preventDefault()
@@ -253,7 +291,7 @@ function Generator() {
               [block]: { x: current.x + dx, y: current.y + dy },
             },
           }
-        })
+        }, `nudge:${block}`)
       }
       const step = event.shiftKey ? 10 : 1
       switch (event.key) {
@@ -283,8 +321,12 @@ function Generator() {
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selected])
+    window.addEventListener('keyup', finishGesture)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', finishGesture)
+    }
+  }, [selected, setStyle, finishGesture])
 
   const goHome = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey)
@@ -347,7 +389,14 @@ function Generator() {
 
   const editor: CardEditor | undefined = exporting
     ? undefined
-    : { style, onChange: setStyle, selected, onSelect: setSelected, scale }
+    : {
+        style,
+        onChange: setStyle,
+        endGesture: finishGesture,
+        selected,
+        onSelect: setSelected,
+        scale,
+      }
 
   const changed = JSON.stringify(style) !== JSON.stringify(DEFAULT_STYLE)
 
@@ -661,6 +710,28 @@ function Generator() {
                 )}
 
                 <div className="editor__actions">
+                  <div className="editor__history">
+                    <button
+                      type="button"
+                      className="button button--ghost"
+                      onClick={undo}
+                      disabled={!canUndo}
+                      title={`${t.actions.undo} (Ctrl+Z)`}
+                    >
+                      <HistoryArrow />
+                      {t.actions.undo}
+                    </button>
+                    <button
+                      type="button"
+                      className="button button--ghost"
+                      onClick={redo}
+                      disabled={!canRedo}
+                      title={`${t.actions.redo} (Ctrl+Shift+Z)`}
+                    >
+                      <HistoryArrow flipped />
+                      {t.actions.redo}
+                    </button>
+                  </div>
                   <button
                     type="button"
                     className="button button--ghost"
@@ -688,6 +759,7 @@ function Generator() {
                 style={style}
                 selected={selected}
                 onChange={setStyle}
+                onEndGesture={finishGesture}
                 onSelect={setSelected}
                 skin={skinStore.skin}
                 skinBusy={skinStore.busy}
@@ -701,6 +773,24 @@ function Generator() {
         <footer className="footer">{t.app.footer}</footer>
       </div>
     </div>
+  )
+}
+
+function HistoryArrow({ flipped = false }: { flipped?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={flipped ? { transform: 'scaleX(-1)' } : undefined}
+    >
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+    </svg>
   )
 }
 

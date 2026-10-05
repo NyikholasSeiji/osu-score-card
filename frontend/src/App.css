@@ -883,6 +883,21 @@
   gap: 8px;
 }
 
+.editor__history {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.editor__history .button {
+  padding-inline: 12px;
+}
+
+.editor__history .button svg {
+  width: 16px;
+  height: 16px;
+}
+
 .hidden-blocks {
   display: flex;
   flex-wrap: wrap;

@@ -83,6 +83,7 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
     const context: CardEditor = editor ?? {
       style,
       onChange: () => {},
+      endGesture: () => {},
       selected: null,
       onSelect: () => {},
       scale: 1,

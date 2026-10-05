@@ -67,6 +67,8 @@ export const en = {
   actions: {
     download: 'Download PNG',
     exporting: 'Exporting…',
+    undo: 'Undo',
+    redo: 'Redo',
     reset: 'Reset style',
     viewOnOsu: 'View on osu!',
     hidden: 'Hidden:',
