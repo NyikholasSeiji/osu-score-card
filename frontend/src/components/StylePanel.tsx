@@ -89,6 +89,7 @@ export function StylePanel({
           close: <b>✕</b>,
         })}
       </p>
+      <p className="panel__hint panel__hint--touch">{t.panel.touchHint}</p>
 
       <details className="panel__section" open>
         <summary>{t.panel.background}</summary>

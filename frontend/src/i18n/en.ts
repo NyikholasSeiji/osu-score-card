@@ -97,6 +97,8 @@ export const en = {
 
   panel: {
     hint: 'Click a block on the card to select it, drag to move it and press {delete} or {close} to hide it.',
+    touchHint:
+      'On touch screens, press and hold a block for half a second to select it, then drag. A quick tap or a swipe just scrolls.',
     background: 'Background',
     backgrounds: {
       beatmap: 'Beatmap cover',

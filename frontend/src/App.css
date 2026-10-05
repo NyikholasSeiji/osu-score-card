@@ -916,6 +916,16 @@
   min-width: 0;
 }
 
+.panel__hint--touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .panel__hint--touch {
+    display: block;
+  }
+}
+
 .panel__hint {
   margin: 0;
   padding: 10px 12px;
@@ -1763,7 +1773,26 @@
   outline: 1px dashed transparent;
   outline-offset: 4px;
   transition: outline-color 0.15s;
-  touch-action: none;
+  touch-action: pan-y pinch-zoom;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Touch long press in progress: the outline closes in over LONG_PRESS_MS. */
+.card--editing .block--arming {
+  outline: 2px dashed var(--accent);
+  animation: block-arm 0.5s ease-out forwards;
+}
+
+@keyframes block-arm {
+  from {
+    outline-offset: 14px;
+    outline-color: transparent;
+  }
+  to {
+    outline-offset: 4px;
+    outline-color: var(--accent);
+  }
 }
 
 .card--editing .block--editable:hover {

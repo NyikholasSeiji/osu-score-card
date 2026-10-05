@@ -99,6 +99,8 @@ export const ptBR: Messages = {
   },
 
   panel: {
+    touchHint:
+      'No toque, segure um bloco por meio segundo para selecioná-lo e então arraste. Um toque rápido ou um deslize só rola a página.',
     hint: 'Clique num bloco do card para selecioná-lo, arraste para mover e use {delete} ou o {close} para escondê-lo.',
     background: 'Fundo',
     backgrounds: {
