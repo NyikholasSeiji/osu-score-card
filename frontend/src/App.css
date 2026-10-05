@@ -673,6 +673,11 @@
   font-weight: 600;
 }
 
+.chip--busy {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .chip--file input {
   display: none;
 }

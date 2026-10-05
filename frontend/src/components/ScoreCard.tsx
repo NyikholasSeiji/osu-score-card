@@ -6,6 +6,7 @@ import { EditorContext, type CardEditor } from '../editor.ts'
 import { interpolate, useI18n } from '../i18n/index.ts'
 import { Block } from './Block.tsx'
 import { ModIcon, RankIcon } from './Icons.tsx'
+import { modAsset, rankAsset, useSkin } from '../skin.ts'
 
 interface ScoreCardProps {
   data: ScoreCardData
@@ -35,6 +36,7 @@ function backgroundImage(data: ScoreCardData, style: CardStyle): string | null {
 export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
   function ScoreCard({ data, style, editor }, ref) {
     const { t } = useI18n()
+    const skin = useSkin()
     const fmt = getFormatters(t.locale)
     const image = backgroundImage(data, style)
     const totalScore =
@@ -133,13 +135,17 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
             <div className="card__hero-overlay" />
             <div className="card__hero-content">
               <Block id="grade" className={`card__grade card__grade--${data.rank}`}>
-                <RankIcon grade={data.rank} />
+                <RankIcon grade={data.rank} src={rankAsset(skin, data.rank)} />
               </Block>
               <div className="card__score-block">
                 {data.mods.length > 0 && (
                   <Block id="mods" className="card__mods">
                     {data.mods.map((mod) => (
-                      <ModIcon key={mod.acronym} acronym={mod.acronym} />
+                      <ModIcon
+                        key={mod.acronym}
+                        acronym={mod.acronym}
+                        src={modAsset(skin, mod.acronym)}
+                      />
                     ))}
                   </Block>
                 )}

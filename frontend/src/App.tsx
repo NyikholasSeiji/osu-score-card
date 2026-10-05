@@ -33,6 +33,7 @@ import { ScoreCard } from './components/ScoreCard.tsx'
 import { ScorePicker } from './components/ScorePicker.tsx'
 import { StylePanel } from './components/StylePanel.tsx'
 import { flagUrl, getFormatters } from './format.ts'
+import { SkinContext, SkinError, useSkinStore } from './skin.ts'
 import {
   I18nContext,
   LANGUAGES,
@@ -130,6 +131,7 @@ function Generator() {
   const pickerRef = useRef<HTMLElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const { stageRef, scale, height } = useCardScale(cardRef, [data, style])
+  const skinStore = useSkinStore()
 
   useEffect(() => {
     fetchMe()
@@ -307,6 +309,19 @@ function Generator() {
     }
     setAuthNotice(null)
     if (await loadCard(id)) setPickerOpen(false)
+  }
+
+  const onImportSkin = async (file: File) => {
+    setError(null)
+    try {
+      await skinStore.importFile(file)
+    } catch (err) {
+      setError(
+        err instanceof SkinError && err.code !== 'SKIN_INVALID'
+          ? { key: err.code }
+          : { key: 'skinFailed', values: { error: String(err) } },
+      )
+    }
   }
 
   const onExport = async () => {
@@ -618,12 +633,14 @@ function Generator() {
                     className="stage__inner"
                     style={{ transform: `scale(${scale})` }}
                   >
-                    <ScoreCard
-                      ref={cardRef}
-                      data={data}
-                      style={style}
-                      editor={editor}
-                    />
+                    <SkinContext value={skinStore.skin}>
+                      <ScoreCard
+                        ref={cardRef}
+                        data={data}
+                        style={style}
+                        editor={editor}
+                      />
+                    </SkinContext>
                   </div>
                 </div>
 
@@ -672,6 +689,10 @@ function Generator() {
                 selected={selected}
                 onChange={setStyle}
                 onSelect={setSelected}
+                skin={skinStore.skin}
+                skinBusy={skinStore.busy}
+                onImportSkin={onImportSkin}
+                onRemoveSkin={skinStore.remove}
               />
             </section>
           )}

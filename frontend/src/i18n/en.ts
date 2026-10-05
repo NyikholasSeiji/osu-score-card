@@ -77,6 +77,11 @@ export const en = {
       'Paste a score link like https://osu.ppy.sh/scores/123456 or just the score number.',
     exportFailed: 'Could not export the image: {error}',
     imageFailed: 'Could not read the image: {error}',
+    skinFailed: 'Could not read the skin: {error}',
+    SKIN_EMPTY:
+      'This skin has no rank or mod icons (ranking-*.png / selection-mod-*.png).',
+    SKIN_UNSUPPORTED:
+      'This browser cannot unpack .osk files; try a current Chrome, Edge, Firefox or Safari.',
     request: 'Error {status} while fetching the score.',
     NOT_LOGGED_IN: 'You need to log in with osu! first.',
     OSU_LOGIN_FAILED: 'Could not log in with osu!. Try again.',
@@ -123,6 +128,13 @@ export const en = {
       classic: 'Classic',
       standardised: 'Standardised (lazer)',
     },
+    icons: 'Icons',
+    skinImport: 'Import osu! skin (.osk)…',
+    skinLoading: 'Reading skin…',
+    skinRemove: 'Use default icons',
+    skinHint:
+      'Rank and mod icons come from the skin (ranking-*.png, selection-mod-*.png). Anything the skin lacks keeps the default icon. The skin stays saved in this browser.',
+    skinLoaded: 'Skin "{name}": {count} icons replaced, the rest use the defaults.',
     blocks: 'Blocks',
     show: 'Show',
     hide: 'Hide',

@@ -79,6 +79,11 @@ export const ptBR: Messages = {
       'Cole um link como https://osu.ppy.sh/scores/123456 ou só o número do score.',
     exportFailed: 'Falha ao exportar a imagem: {error}',
     imageFailed: 'Não foi possível ler a imagem: {error}',
+    skinFailed: 'Não foi possível ler a skin: {error}',
+    SKIN_EMPTY:
+      'Essa skin não tem ícones de rank nem de mods (ranking-*.png / selection-mod-*.png).',
+    SKIN_UNSUPPORTED:
+      'Este navegador não consegue abrir arquivos .osk; use um Chrome, Edge, Firefox ou Safari atual.',
     request: 'Erro {status} ao buscar o score.',
     NOT_LOGGED_IN: 'Você precisa entrar com o osu! primeiro.',
     OSU_LOGIN_FAILED: 'Não foi possível entrar com o osu!. Tente de novo.',
@@ -126,6 +131,13 @@ export const ptBR: Messages = {
       classic: 'Clássica',
       standardised: 'Padronizada (lazer)',
     },
+    icons: 'Ícones',
+    skinImport: 'Importar skin do osu! (.osk)…',
+    skinLoading: 'Lendo a skin…',
+    skinRemove: 'Usar ícones padrão',
+    skinHint:
+      'Os ícones de rank e de mods vêm da skin (ranking-*.png, selection-mod-*.png). O que a skin não tiver continua com o ícone padrão. A skin fica salva neste navegador.',
+    skinLoaded: 'Skin "{name}": {count} ícones substituídos, o resto usa o padrão.',
     blocks: 'Blocos',
     show: 'Mostrar',
     hide: 'Esconder',

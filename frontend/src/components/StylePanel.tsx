@@ -13,7 +13,8 @@ import {
   showBlock,
   withCustomBackground,
 } from '../editor.ts'
-import { plural, useI18n } from '../i18n/index.ts'
+import { interpolate, plural, useI18n } from '../i18n/index.ts'
+import type { Skin } from '../skin.ts'
 
 interface StylePanelProps {
   data: ScoreCardData
@@ -21,6 +22,10 @@ interface StylePanelProps {
   selected: CardBlock | null
   onChange: (style: CardStyle) => void
   onSelect: (block: CardBlock | null) => void
+  skin: Skin | null
+  skinBusy: boolean
+  onImportSkin: (file: File) => void
+  onRemoveSkin: () => void
 }
 
 const BACKGROUNDS: BackgroundSource[] = ['beatmap', 'user', 'custom', 'solid']
@@ -42,6 +47,10 @@ export function StylePanel({
   selected,
   onChange,
   onSelect,
+  skin,
+  skinBusy,
+  onImportSkin,
+  onRemoveSkin,
 }: StylePanelProps) {
   const { t } = useI18n()
   const update = (patch: Partial<CardStyle>) => onChange({ ...style, ...patch })
@@ -50,6 +59,12 @@ export function StylePanel({
     const file = event.target.files?.[0]
     if (!file) return
     onChange(withCustomBackground(style, await readImageAsDataUrl(file)))
+  }
+
+  const onSkinUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (file) onImportSkin(file)
   }
 
   const backgrounds = BACKGROUNDS.filter(
@@ -219,6 +234,36 @@ export function StylePanel({
               </option>
             </select>
           </label>
+        </div>
+      </details>
+
+      <details className="panel__section" open>
+        <summary>{t.panel.icons}</summary>
+        <div className="panel__body">
+          <div className="panel__chips">
+            <label className={`chip chip--file${skinBusy ? ' chip--busy' : ''}`}>
+              {skinBusy ? t.panel.skinLoading : t.panel.skinImport}
+              <input
+                type="file"
+                accept=".osk,.zip,application/zip,application/x-zip-compressed"
+                disabled={skinBusy}
+                onChange={onSkinUpload}
+              />
+            </label>
+            {skin && (
+              <button type="button" className="chip" onClick={onRemoveSkin}>
+                {t.panel.skinRemove}
+              </button>
+            )}
+          </div>
+          <p className="panel__note">
+            {skin
+              ? interpolate(t.panel.skinLoaded, {
+                  name: skin.name,
+                  count: Object.keys(skin.urls).length,
+                })
+              : t.panel.skinHint}
+          </p>
         </div>
       </details>
 
