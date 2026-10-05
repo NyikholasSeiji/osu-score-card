@@ -220,14 +220,17 @@ function Generator() {
     [player],
   )
 
-  const applyImageFile = async (file: File) => {
-    try {
-      const dataUrl = await readImageAsDataUrl(file)
-      setStyle((s) => withCustomBackground(s, dataUrl))
-    } catch (err) {
-      setError({ key: 'imageFailed', values: { error: String(err) } })
-    }
-  }
+  const applyImageFile = useCallback(
+    async (file: File) => {
+      try {
+        const dataUrl = await readImageAsDataUrl(file)
+        setStyle((s) => withCustomBackground(s, dataUrl))
+      } catch (err) {
+        setError({ key: 'imageFailed', values: { error: String(err) } })
+      }
+    },
+    [setStyle],
+  )
 
   useEffect(() => {
     if (!data) return
@@ -240,7 +243,7 @@ function Generator() {
     }
     window.addEventListener('paste', onPaste)
     return () => window.removeEventListener('paste', onPaste)
-  }, [data])
+  }, [data, applyImageFile])
 
   const onDragOver = (event: DragEvent) => {
     if (!event.dataTransfer.types.includes('Files')) return
