@@ -51,6 +51,32 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
     const classes = ['card', `card--${style.layout}`]
     if (editor) classes.push('card--editing')
 
+    const meta = (
+      <Block id="meta" className="card__meta">
+        <dl>
+          <div>
+            <dt>{t.card.playedBy}</dt>
+            <dd>{data.user.username}</dd>
+          </div>
+          <div>
+            <dt>{t.card.submittedOn}</dt>
+            <dd>{fmt.date(data.endedAt)}</dd>
+          </div>
+          <div>
+            <dt>{t.card.playedOn}</dt>
+            <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
+          </div>
+          <div>
+            <dt>{t.card.bpmLength}</dt>
+            <dd>
+              {fmt.integer(data.beatmap.bpm)} /{' '}
+              {fmt.length(data.beatmap.lengthSeconds)}
+            </dd>
+          </div>
+        </dl>
+      </Block>
+    )
+
     const context: CardEditor = editor ?? {
       style,
       onChange: () => {},
@@ -121,29 +147,7 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                 <Block id="score" className="card__score">
                   {fmt.integer(totalScore)}
                 </Block>
-                <Block id="meta" className="card__meta">
-                  <dl>
-                    <div>
-                      <dt>{t.card.playedBy}</dt>
-                      <dd>{data.user.username}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.card.submittedOn}</dt>
-                      <dd>{fmt.date(data.endedAt)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.card.playedOn}</dt>
-                      <dd>{data.client === 'stable' ? 'Stable' : 'Lazer'}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.card.bpmLength}</dt>
-                      <dd>
-                        {fmt.integer(data.beatmap.bpm)} /{' '}
-                        {fmt.length(data.beatmap.lengthSeconds)}
-                      </dd>
-                    </div>
-                  </dl>
-                </Block>
+                {style.layout === 'classic' && meta}
                 {data.globalRank !== null && (
                   <Block id="globalRank" className="card__global-rank">
                     <span>{t.card.globalRank}</span>
@@ -151,6 +155,7 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                   </Block>
                 )}
               </div>
+              {style.layout === 'compact' && meta}
             </div>
           </section>
 
