@@ -1,10 +1,11 @@
 import { forwardRef, type CSSProperties } from 'react'
 import { proxiedImage } from '../api.ts'
-import { GRADE_LABEL, getFormatters } from '../format.ts'
+import { getFormatters } from '../format.ts'
 import type { CardFont, CardStyle, ScoreCardData } from '../types.ts'
 import { EditorContext, type CardEditor } from '../editor.ts'
 import { interpolate, useI18n } from '../i18n/index.ts'
 import { Block } from './Block.tsx'
+import { ModIcon, RankIcon } from './Icons.tsx'
 
 interface ScoreCardProps {
   data: ScoreCardData
@@ -132,15 +133,13 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
             <div className="card__hero-overlay" />
             <div className="card__hero-content">
               <Block id="grade" className={`card__grade card__grade--${data.rank}`}>
-                {GRADE_LABEL[data.rank]}
+                <RankIcon grade={data.rank} />
               </Block>
               <div className="card__score-block">
                 {data.mods.length > 0 && (
                   <Block id="mods" className="card__mods">
                     {data.mods.map((mod) => (
-                      <span key={mod.acronym} className="card__mod">
-                        {mod.acronym}
-                      </span>
+                      <ModIcon key={mod.acronym} acronym={mod.acronym} />
                     ))}
                   </Block>
                 )}

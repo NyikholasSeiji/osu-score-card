@@ -1368,13 +1368,70 @@
   max-width: 100%;
 }
 
-.card__mod {
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: var(--accent);
+/* Mod badges share one height and a minimum width so any combination lines up;
+   colours follow lazer's mod categories. Skin sprites replace the badge. */
+.mod-icon {
+  --mod-color: #c8c8c8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 46px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background: var(--mod-color);
   color: #1c1719;
   font-weight: 800;
   font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+.mod-icon--reduction {
+  --mod-color: #b2ff66;
+}
+.mod-icon--increase {
+  --mod-color: #ff6a6a;
+}
+.mod-icon--automation {
+  --mod-color: #66ccff;
+}
+.mod-icon--conversion {
+  --mod-color: #c99bff;
+}
+.mod-icon--fun {
+  --mod-color: #ff80c8;
+}
+
+.mod-icon--image {
+  min-width: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.mod-icon__img {
+  display: block;
+  height: 100%;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.45));
+}
+
+/* The grade letter (or skin image) fills the slot reserved by .card__grade. */
+.grade-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.grade-icon__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.5));
 }
 
 .card__score {
@@ -1599,6 +1656,13 @@
 
 .card--compact .card__score {
   font-size: 48px;
+}
+
+.card--compact .mod-icon {
+  height: 24px;
+  min-width: 40px;
+  padding: 0 7px;
+  font-size: 12px;
 }
 
 .card--compact .card__global-rank {
