@@ -4,8 +4,6 @@ Turn any osu! standard score into a polished, shareable card — straight from t
 
 **Live:** https://osu-score-card.onrender.com
 
-![osu! card generator — card for a score, with the visual editor on the right](docs/screenshot.png)
-
 ## About
 
 Paste a score link (or ID), search for a player, or log in with your osu! account to pick one of your own plays. The app fetches the official data, renders a card you can restyle freely and exports it as a PNG.
