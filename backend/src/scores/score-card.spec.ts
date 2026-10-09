@@ -20,6 +20,7 @@ describe('toScoreCard', () => {
     expect(card).toMatchObject({
       id: 1485666113,
       url: 'https://osu.ppy.sh/scores/1485666113',
+      ruleset: 'osu',
       rank: 'SH',
       score: { classic: 2109807, standardised: 1237293, legacy: 1828324 },
       accuracy: 0.993994,
@@ -38,6 +39,30 @@ describe('toScoreCard', () => {
     expect(card.beatmap.starRating).toBe(7.02);
     expect(card.beatmap.starRatingNoMod).toBeCloseTo(5.10226);
     expect(card.beatmap.bpm).toBeCloseTo(fixture.beatmap.bpm * 1.5);
+  });
+
+  it('names the ruleset and keeps every hit count the other modes use', () => {
+    const card = toScoreCard(
+      {
+        ...fixture,
+        ruleset_id: 3,
+        statistics: { perfect: 1200, great: 300, good: 20, ok: 5, miss: 2 },
+      },
+      4.2,
+    );
+    expect(card.ruleset).toBe('mania');
+    expect(card.statistics).toEqual({
+      perfect: 1200,
+      great: 300,
+      good: 20,
+      ok: 5,
+      meh: 0,
+      miss: 2,
+      largeTickHit: 0,
+      largeTickMiss: 0,
+      smallTickHit: 0,
+      smallTickMiss: 0,
+    });
   });
 
   it('marks lazer scores and hides the legacy score', () => {

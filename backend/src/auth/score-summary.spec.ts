@@ -13,6 +13,7 @@ describe('toScoreSummary', () => {
   it('keeps only what the score picker needs', () => {
     expect(toScoreSummary(fixture)).toEqual({
       id: 1485666113,
+      ruleset: 'osu',
       rank: 'SH',
       score: { classic: 2109807, standardised: 1237293 },
       accuracy: 0.993994,

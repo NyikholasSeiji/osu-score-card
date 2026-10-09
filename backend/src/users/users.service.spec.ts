@@ -71,14 +71,14 @@ describe('UsersService.search', () => {
 });
 
 describe('UsersService.getScores', () => {
-  it('requests osu! standard scores only', async () => {
+  it('requests the given ruleset, lazer included and fails excluded', async () => {
     const getUserScores = vi.fn().mockResolvedValue([]);
     const users = service({ getUserScores });
-    expect(await users.getScores(7562902, 'best')).toEqual([]);
+    expect(await users.getScores(7562902, 'best', Ruleset.mania)).toEqual([]);
     expect(getUserScores).toHaveBeenCalledWith(
       7562902,
       'best',
-      Ruleset.osu,
+      Ruleset.mania,
       { lazer: true, fails: false },
       { limit: 50 },
     );
@@ -88,12 +88,12 @@ describe('UsersService.getScores', () => {
     await expect(
       service({
         getUserScores: vi.fn().mockRejectedValue(notFound()),
-      }).getScores(1, 'recent'),
+      }).getScores(1, 'recent', Ruleset.osu),
     ).rejects.toBeInstanceOf(NotFoundException);
     await expect(
       service({
         getUserScores: vi.fn().mockRejectedValue(new Error('down')),
-      }).getScores(1, 'recent'),
+      }).getScores(1, 'recent', Ruleset.osu),
     ).rejects.toBeInstanceOf(BadGatewayException);
   });
 });

@@ -9,17 +9,14 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
-import type {
-  AuthUser,
-  OAuthConfig,
-  ScoreListType,
-} from './auth.service.js';
+import type { AuthUser, OAuthConfig, ScoreListType } from './auth.service.js';
 import {
   SESSION_COOKIE,
   STATE_COOKIE,
   cookieOptions,
   readCookie,
 } from './cookies.js';
+import { parseRuleset } from '../osu/ruleset.js';
 import type { ScoreSummary } from './score-summary.js';
 
 const STATE_TTL_MS = 10 * 60 * 1000;
@@ -84,6 +81,7 @@ export class AuthController {
   scores(
     @Req() req: Request,
     @Query('type') type: string | undefined,
+    @Query('mode') mode: string | undefined,
   ): Promise<ScoreSummary[]> {
     if (type !== 'recent' && type !== 'best') {
       throw new BadRequestException({
@@ -94,6 +92,7 @@ export class AuthController {
     return this.auth.getScores(
       readCookie(req, SESSION_COOKIE),
       type satisfies ScoreListType,
+      parseRuleset(mode),
     );
   }
 

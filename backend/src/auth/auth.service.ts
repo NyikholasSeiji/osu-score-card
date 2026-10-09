@@ -136,13 +136,14 @@ export class AuthService {
   async getScores(
     sessionId: string | undefined,
     type: ScoreListType,
+    ruleset: Ruleset,
   ): Promise<ScoreSummary[]> {
     const session = this.requireSession(sessionId);
     try {
       const scores = await session.api.getUserScores(
         session.user.id,
         type,
-        Ruleset.osu,
+        ruleset,
         { lazer: true, fails: false },
         { limit: SCORE_LIST_LIMIT },
       );

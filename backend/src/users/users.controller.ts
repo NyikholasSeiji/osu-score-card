@@ -7,6 +7,7 @@ import {
   Query,
 } from '@nestjs/common';
 import type { ScoreSummary } from '../auth/score-summary.js';
+import { parseRuleset } from '../osu/ruleset.js';
 import type { Player } from './player.js';
 import { UsersService } from './users.service.js';
 import type { ScoreListType } from './users.service.js';
@@ -33,6 +34,7 @@ export class UsersController {
   scores(
     @Param('id', ParseIntPipe) id: number,
     @Query('type') type: string | undefined,
+    @Query('mode') mode: string | undefined,
   ): Promise<ScoreSummary[]> {
     if (type !== 'recent' && type !== 'best') {
       throw new BadRequestException({
@@ -40,6 +42,10 @@ export class UsersController {
         message: 'type must be "recent" or "best".',
       });
     }
-    return this.users.getScores(id, type satisfies ScoreListType);
+    return this.users.getScores(
+      id,
+      type satisfies ScoreListType,
+      parseRuleset(mode),
+    );
   }
 }

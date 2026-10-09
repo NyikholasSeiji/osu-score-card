@@ -1,13 +1,28 @@
 import type { Mod, Score } from 'osu-api-v2-js';
+import { rulesetName, type RulesetName } from '../osu/ruleset.js';
 
 export interface ScoreCardMod {
   acronym: string;
   settings?: Record<string, unknown>;
 }
 
+export interface ScoreCardStatistics {
+  perfect: number;
+  great: number;
+  good: number;
+  ok: number;
+  meh: number;
+  miss: number;
+  largeTickHit: number;
+  largeTickMiss: number;
+  smallTickHit: number;
+  smallTickMiss: number;
+}
+
 export interface ScoreCard {
   id: number;
   url: string;
+  ruleset: RulesetName;
   rank: Score.Grade;
   passed: boolean;
   score: {
@@ -24,12 +39,8 @@ export interface ScoreCard {
   endedAt: string;
   client: 'stable' | 'lazer';
   mods: ScoreCardMod[];
-  statistics: {
-    great: number;
-    ok: number;
-    meh: number;
-    miss: number;
-  };
+  /** Hit counts; which ones matter depends on the ruleset (zero otherwise). */
+  statistics: ScoreCardStatistics;
   beatmap: {
     id: number;
     url: string;
@@ -79,6 +90,23 @@ export function speedMultiplier(mods: Mod[]): number {
   return 1;
 }
 
+export function toStatistics(
+  statistics: Score.Statistics,
+): ScoreCardStatistics {
+  return {
+    perfect: statistics.perfect ?? 0,
+    great: statistics.great ?? 0,
+    good: statistics.good ?? 0,
+    ok: statistics.ok ?? 0,
+    meh: statistics.meh ?? 0,
+    miss: statistics.miss ?? 0,
+    largeTickHit: statistics.large_tick_hit ?? 0,
+    largeTickMiss: statistics.large_tick_miss ?? 0,
+    smallTickHit: statistics.small_tick_hit ?? 0,
+    smallTickMiss: statistics.small_tick_miss ?? 0,
+  };
+}
+
 export function toScoreCard(
   score: Score.Extended,
   starRating: number,
@@ -90,6 +118,7 @@ export function toScoreCard(
   return {
     id: score.id,
     url: `https://osu.ppy.sh/scores/${score.id}`,
+    ruleset: rulesetName(score.ruleset_id),
     rank: score.rank,
     passed: score.passed,
     score: {
@@ -110,12 +139,7 @@ export function toScoreCard(
         ? { acronym: mod.acronym, settings: mod.settings }
         : { acronym: mod.acronym },
     ),
-    statistics: {
-      great: score.statistics.great ?? 0,
-      ok: score.statistics.ok ?? 0,
-      meh: score.statistics.meh ?? 0,
-      miss: score.statistics.miss ?? 0,
-    },
+    statistics: toStatistics(score.statistics),
     beatmap: {
       id: beatmap.id,
       url: beatmap.url,

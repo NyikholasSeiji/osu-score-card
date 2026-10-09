@@ -42,6 +42,7 @@ export class UsersService {
   async getScores(
     userId: number,
     type: ScoreListType,
+    ruleset: Ruleset,
   ): Promise<ScoreSummary[]> {
     try {
       const scores = await this.osu
@@ -49,7 +50,7 @@ export class UsersService {
         .getUserScores(
           userId,
           type,
-          Ruleset.osu,
+          ruleset,
           { lazer: true, fails: false },
           { limit: SCORE_LIST_LIMIT },
         );

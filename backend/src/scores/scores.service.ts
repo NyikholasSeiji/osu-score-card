@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Ruleset } from 'osu-api-v2-js';
 import { OsuClient } from '../osu/osu-client.js';
 import { affectsDifficulty, ScoreCard, toScoreCard } from './score-card.js';
@@ -34,19 +30,16 @@ export class ScoresService {
       });
     });
 
-    if (score.ruleset_id !== Ruleset.osu) {
-      throw new UnprocessableEntityException({
-        code: 'UNSUPPORTED_RULESET',
-        message: 'Only osu! standard scores are supported for now.',
-      });
-    }
-
+    // A convert (e.g. an osu! map played in taiko) has a star rating of its
+    // own, so the beatmap's value only holds for the native ruleset + no mods.
+    const isConvert = Ruleset[score.beatmap.mode] !== score.ruleset_id;
     let starRating = score.beatmap.difficulty_rating;
-    if (affectsDifficulty(score.mods)) {
+    if (isConvert || affectsDifficulty(score.mods)) {
       try {
-        const attributes = await api.getBeatmapDifficultyAttributesOsu(
+        const attributes = await api.getBeatmapDifficultyAttributes(
           score.beatmap,
           score.mods,
+          score.ruleset_id,
         );
         starRating = attributes.star_rating;
       } catch (error) {

@@ -1,8 +1,10 @@
 import type { Score } from 'osu-api-v2-js';
+import { rulesetName, type RulesetName } from '../osu/ruleset.js';
 
 /** A lightweight row for the score picker; the full card is fetched on selection. */
 export interface ScoreSummary {
   id: number;
+  ruleset: RulesetName;
   rank: Score.Grade;
   score: { classic: number; standardised: number };
   accuracy: number;
@@ -29,6 +31,7 @@ export function toScoreSummary(
 ): ScoreSummary {
   return {
     id: score.id,
+    ruleset: rulesetName(score.ruleset_id),
     rank: score.rank,
     score: {
       classic: score.classic_total_score,
