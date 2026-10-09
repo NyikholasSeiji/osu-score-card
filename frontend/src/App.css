@@ -722,6 +722,45 @@
   border-radius: 8px 8px 0 0;
 }
 
+.picker__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.mode-chip:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.mode-chip--active {
+  color: var(--pink);
+  background: var(--pink-soft);
+  border-color: var(--pink);
+  font-weight: 600;
+}
+
+.mode-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .picker__status {
   margin: 0;
   padding: 6px 2px;
@@ -1293,6 +1332,24 @@
   white-space: nowrap;
 }
 
+.card__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+  padding: 4px 12px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.card__mode .mode-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .card__muted {
   opacity: 0.65;
   font-size: 13px;
@@ -1602,8 +1659,14 @@
   color: #fff;
 }
 
+.stat__label--perfect {
+  color: #d8b4ff;
+}
 .stat__label--great {
   color: #66ccff;
+}
+.stat__label--good {
+  color: #5ef0a0;
 }
 .stat__label--ok {
   color: #88da20;
@@ -1643,7 +1706,8 @@
   font-size: 13px;
 }
 
-.card--compact .card__stars {
+.card--compact .card__stars,
+.card--compact .card__mode {
   font-size: 13px;
 }
 

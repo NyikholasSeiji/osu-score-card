@@ -1,3 +1,25 @@
+import type { StatKey } from '../rulesets.ts'
+import type { Ruleset } from '../types.ts'
+
+const STAT_LABELS: Record<Ruleset, Partial<Record<StatKey, string>>> = {
+  osu: { great: 'Great', ok: 'Ok', meh: 'Meh', miss: 'Misses' },
+  taiko: { great: 'Great', ok: 'Ok', miss: 'Misses' },
+  fruits: {
+    great: 'Fruits',
+    largeTickHit: 'Drops',
+    smallTickHit: 'Droplets',
+    miss: 'Misses',
+  },
+  mania: {
+    perfect: 'Perfect',
+    great: 'Great',
+    good: 'Good',
+    ok: 'Ok',
+    meh: 'Meh',
+    miss: 'Misses',
+  },
+}
+
 export const en = {
   locale: 'en-US',
   name: 'English',
@@ -5,7 +27,7 @@ export const en = {
   app: {
     title: 'osu! card generator — turn a score into a shareable card',
     description:
-      'Paste a link to an osu! standard score and get a customisable card ready to share. Faithful data from the official API, your visual style.',
+      'Paste a link to an osu! score — any game mode — and get a customisable card ready to share. Faithful data from the official API, your visual style.',
     github: 'GitHub',
     language: 'Language',
     footer:
@@ -14,14 +36,14 @@ export const en = {
 
   intro: {
     heading: 'Turn an osu! score into a card to share',
-    lead: 'Paste a link to an osu! standard play. The data comes straight from the official API; you only change the visuals.',
+    lead: 'Paste a link to an osu! play from any game mode. The data comes straight from the official API; you only change the visuals.',
     placeholder: 'Score link or ID',
     inputLabel: 'Score link or ID',
     generate: 'Generate card',
     loading: 'Loading…',
     startLabel: 'Start here',
     startHint:
-      'Any osu! standard score works — even a random ID, if you want to dig up an unusual old play.',
+      'Any osu! score works (standard, taiko, catch or mania) — even a random ID, if you want to dig up an unusual old play.',
     readyLabel: 'Card ready',
     scoreId: 'Score #{id}',
   },
@@ -43,7 +65,8 @@ export const en = {
     viewing: 'Browsing the plays of',
     profile: 'Profile on osu!',
     close: 'Close',
-    empty: 'No osu! standard plays here yet.',
+    empty: 'No plays in this game mode yet.',
+    mode: 'Game mode',
     loading: 'Loading plays…',
   },
 
@@ -88,7 +111,7 @@ export const en = {
     NOT_LOGGED_IN: 'You need to log in with osu! first.',
     OSU_LOGIN_FAILED: 'Could not log in with osu!. Try again.',
     SCORE_NOT_FOUND: 'Score not found.',
-    UNSUPPORTED_RULESET: 'Only osu! standard scores are supported for now.',
+    INVALID_RULESET: 'Unknown game mode.',
     OSU_API_FAILED: 'Could not reach the osu! API.',
     PLAYER_NOT_FOUND: 'Player not found.',
     OSU_CREDENTIALS_MISSING:
@@ -154,6 +177,7 @@ export const en = {
     labels: {
       header: 'Map title',
       starRating: 'Star rating',
+      mode: 'Game mode',
       grade: 'Grade',
       mods: 'Mods',
       score: 'Score',
@@ -163,7 +187,7 @@ export const en = {
       accuracy: 'Accuracy',
       combo: 'Combo',
       pp: 'PP',
-      statistics: 'Great/Ok/Meh/Misses',
+      statistics: 'Hit counts',
     },
   },
 
@@ -178,11 +202,9 @@ export const en = {
     accuracy: 'Accuracy',
     maxCombo: 'Max combo',
     pp: 'PP',
-    great: 'Great',
-    ok: 'Ok',
-    meh: 'Meh',
-    miss: 'Misses',
+    stats: STAT_LABELS,
   },
 }
+
 
 export type Messages = typeof en

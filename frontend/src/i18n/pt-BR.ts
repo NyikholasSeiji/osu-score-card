@@ -7,7 +7,7 @@ export const ptBR: Messages = {
   app: {
     title: 'osu! card generator — crie um card do seu score',
     description:
-      'Cole o link de um score de osu! standard e gere um card personalizável para compartilhar. Dados fiéis da API oficial, visual do seu jeito.',
+      'Cole o link de um score de osu! — de qualquer modo de jogo — e gere um card personalizável para compartilhar. Dados fiéis da API oficial, visual do seu jeito.',
     github: 'GitHub',
     language: 'Idioma',
     footer:
@@ -16,14 +16,14 @@ export const ptBR: Messages = {
 
   intro: {
     heading: 'Transforme um score do osu! em um card para compartilhar',
-    lead: 'Cole o link de uma jogada de osu! standard. Os dados vêm direto da API oficial; você só muda o visual.',
+    lead: 'Cole o link de uma jogada de osu! de qualquer modo de jogo. Os dados vêm direto da API oficial; você só muda o visual.',
     placeholder: 'Link ou ID do score',
     inputLabel: 'Link ou ID do score',
     generate: 'Gerar card',
     loading: 'Buscando…',
     startLabel: 'Comece aqui',
     startHint:
-      'Vale qualquer score de osu! standard — até um ID aleatório, se quiser garimpar uma jogada antiga inusitada.',
+      'Vale qualquer score de osu! (standard, taiko, catch ou mania) — até um ID aleatório, se quiser garimpar uma jogada antiga inusitada.',
     readyLabel: 'Card pronto',
     scoreId: 'Score #{id}',
   },
@@ -45,7 +45,8 @@ export const ptBR: Messages = {
     viewing: 'Vendo as jogadas de',
     profile: 'Perfil no osu!',
     close: 'Fechar',
-    empty: 'Nenhuma jogada de osu! standard por aqui ainda.',
+    empty: 'Nenhuma jogada nesse modo de jogo ainda.',
+    mode: 'Modo de jogo',
     loading: 'Carregando jogadas…',
   },
 
@@ -90,8 +91,7 @@ export const ptBR: Messages = {
     NOT_LOGGED_IN: 'Você precisa entrar com o osu! primeiro.',
     OSU_LOGIN_FAILED: 'Não foi possível entrar com o osu!. Tente de novo.',
     SCORE_NOT_FOUND: 'Score não encontrado.',
-    UNSUPPORTED_RULESET:
-      'Por enquanto, apenas scores de osu! standard são suportados.',
+    INVALID_RULESET: 'Modo de jogo desconhecido.',
     OSU_API_FAILED: 'Falha ao consultar a API do osu!.',
     PLAYER_NOT_FOUND: 'Jogador não encontrado.',
     OSU_CREDENTIALS_MISSING:
@@ -157,6 +157,7 @@ export const ptBR: Messages = {
     labels: {
       header: 'Título do mapa',
       starRating: 'Estrelas',
+      mode: 'Modo de jogo',
       grade: 'Rank',
       mods: 'Mods',
       score: 'Pontuação',
@@ -166,7 +167,7 @@ export const ptBR: Messages = {
       accuracy: 'Precisão',
       combo: 'Combo',
       pp: 'PP',
-      statistics: 'Great/Ok/Meh/Erros',
+      statistics: 'Contagem de acertos',
     },
   },
 
@@ -181,9 +182,23 @@ export const ptBR: Messages = {
     accuracy: 'Precisão',
     maxCombo: 'Combo máximo',
     pp: 'PP',
-    great: 'Great',
-    ok: 'Ok',
-    meh: 'Meh',
-    miss: 'Erros',
+    stats: {
+      osu: { great: 'Great', ok: 'Ok', meh: 'Meh', miss: 'Erros' },
+      taiko: { great: 'Great', ok: 'Ok', miss: 'Erros' },
+      fruits: {
+        great: 'Frutas',
+        largeTickHit: 'Gotas',
+        smallTickHit: 'Gotículas',
+        miss: 'Erros',
+      },
+      mania: {
+        perfect: 'Perfect',
+        great: 'Great',
+        good: 'Good',
+        ok: 'Ok',
+        meh: 'Meh',
+        miss: 'Erros',
+      },
+    },
   },
 }

@@ -5,7 +5,8 @@ import type { CardFont, CardStyle, ScoreCardData } from '../types.ts'
 import { EditorContext, type CardEditor } from '../editor.ts'
 import { interpolate, useI18n } from '../i18n/index.ts'
 import { Block } from './Block.tsx'
-import { ModIcon, RankIcon } from './Icons.tsx'
+import { ModIcon, ModeIcon, RankIcon } from './Icons.tsx'
+import { RULESET_LABEL, RULESET_STATS, type StatTone } from '../rulesets.ts'
 import { modAsset, rankAsset, useSkin } from '../skin.ts'
 
 interface ScoreCardProps {
@@ -115,6 +116,10 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                 </span>
               </p>
             </Block>
+            <Block id="mode" className="card__mode">
+              <ModeIcon ruleset={data.ruleset} />
+              {RULESET_LABEL[data.ruleset]}
+            </Block>
             <Block id="starRating" className="card__stars">
               ★ {fmt.stars(data.beatmap.starRating)}
             </Block>
@@ -195,10 +200,14 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
                 />
               </Block>
               <Block id="statistics" className="card__stat-group">
-                <Stat label={t.card.great} value={data.statistics.great} tone="great" />
-                <Stat label={t.card.ok} value={data.statistics.ok} tone="ok" />
-                <Stat label={t.card.meh} value={data.statistics.meh} tone="meh" />
-                <Stat label={t.card.miss} value={data.statistics.miss} tone="miss" />
+                {RULESET_STATS[data.ruleset].map(({ key, tone }) => (
+                  <Stat
+                    key={key}
+                    label={t.card.stats[data.ruleset][key] ?? key}
+                    value={data.statistics[key]}
+                    tone={tone}
+                  />
+                ))}
               </Block>
             </div>
           </footer>
@@ -215,7 +224,7 @@ function Stat({
 }: {
   label: string
   value: string | number
-  tone?: 'great' | 'ok' | 'meh' | 'miss'
+  tone?: StatTone
 }) {
   return (
     <div className="stat">

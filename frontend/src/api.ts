@@ -1,6 +1,7 @@
 import type {
   AuthUser,
   Player,
+  Ruleset,
   ScoreCardData,
   ScoreListType,
   ScoreSummary,
@@ -59,8 +60,11 @@ export async function fetchMe(): Promise<AuthUser | null> {
   }
 }
 
-export function fetchMyScores(type: ScoreListType): Promise<ScoreSummary[]> {
-  return request(`/api/me/scores?type=${type}`)
+export function fetchMyScores(
+  type: ScoreListType,
+  mode: Ruleset,
+): Promise<ScoreSummary[]> {
+  return request(`/api/me/scores?type=${type}&mode=${mode}`)
 }
 
 export function searchPlayers(
@@ -73,8 +77,9 @@ export function searchPlayers(
 export function fetchPlayerScores(
   playerId: number,
   type: ScoreListType,
+  mode: Ruleset,
 ): Promise<ScoreSummary[]> {
-  return request(`/api/users/${playerId}/scores?type=${type}`)
+  return request(`/api/users/${playerId}/scores?type=${type}&mode=${mode}`)
 }
 
 export async function logout(): Promise<void> {

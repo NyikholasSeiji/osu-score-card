@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react'
 import { proxiedImage } from '../api.ts'
 import { GRADE_LABEL, getFormatters } from '../format.ts'
 import { translateError, useI18n, type UiError } from '../i18n/index.ts'
-import type { ScoreListType, ScoreSummary } from '../types.ts'
+import { RULESETS, type Ruleset, type ScoreListType, type ScoreSummary } from '../types.ts'
+import { RULESET_LABEL } from '../rulesets.ts'
+import { ModeIcon } from './Icons.tsx'
 
 interface Props {
   /** Loads one list; the component caches each type until it is remounted. */
   fetchScores: (type: ScoreListType) => Promise<ScoreSummary[]>
   onPick: (score: ScoreSummary) => void
+  mode: Ruleset
+  onModeChange: (mode: Ruleset) => void
   picking: number | null
   toUiError: (err: unknown) => UiError
 }
@@ -15,23 +19,31 @@ interface Props {
 const LIST_TYPES: ScoreListType[] = ['recent', 'best']
 
 /** Lists a player's recent/best plays so one can be turned into a card. */
-export function ScorePicker({ fetchScores, onPick, picking, toUiError }: Props) {
+export function ScorePicker({
+  fetchScores,
+  onPick,
+  mode,
+  onModeChange,
+  picking,
+  toUiError,
+}: Props) {
   const { t } = useI18n()
   const fmt = getFormatters(t.locale)
   const [type, setType] = useState<ScoreListType>('recent')
-  const [lists, setLists] = useState<
-    Partial<Record<ScoreListType, ScoreSummary[]>>
-  >({})
+  const [lists, setLists] = useState<Partial<Record<string, ScoreSummary[]>>>(
+    {},
+  )
   const [error, setError] = useState<UiError | null>(null)
 
-  const scores = lists[type]
+  const listKey = `${mode}:${type}`
+  const scores = lists[listKey]
 
   useEffect(() => {
     if (scores) return
     let cancelled = false
     fetchScores(type)
       .then((list) => {
-        if (!cancelled) setLists((prev) => ({ ...prev, [type]: list }))
+        if (!cancelled) setLists((prev) => ({ ...prev, [listKey]: list }))
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(toUiError(err))
@@ -39,7 +51,7 @@ export function ScorePicker({ fetchScores, onPick, picking, toUiError }: Props) 
     return () => {
       cancelled = true
     }
-  }, [type, scores, fetchScores, toUiError])
+  }, [type, listKey, scores, fetchScores, toUiError])
 
   return (
     <section className="picker" aria-label={t.auth.picker}>
@@ -59,6 +71,24 @@ export function ScorePicker({ fetchScores, onPick, picking, toUiError }: Props) 
             {t.auth[item]}
           </button>
         ))}
+        <div className="picker__modes" role="group" aria-label={t.player.mode}>
+          {RULESETS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={`mode-chip${item === mode ? ' mode-chip--active' : ''}`}
+              aria-pressed={item === mode}
+              title={RULESET_LABEL[item]}
+              onClick={() => {
+                onModeChange(item)
+                setError(null)
+              }}
+            >
+              <ModeIcon ruleset={item} />
+              <span>{RULESET_LABEL[item]}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (

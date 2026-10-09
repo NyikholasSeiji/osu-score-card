@@ -39,6 +39,8 @@ import { ScoreCard } from './components/ScoreCard.tsx'
 import { ScorePicker } from './components/ScorePicker.tsx'
 import { StylePanel } from './components/StylePanel.tsx'
 import { flagUrl, getFormatters } from './format.ts'
+import { loadMode, saveMode } from './rulesets.ts'
+import type { Ruleset } from './types.ts'
 import { SkinContext, SkinError, useSkinStore } from './skin.ts'
 import {
   I18nContext,
@@ -147,6 +149,7 @@ function Generator() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [picking, setPicking] = useState<number | null>(null)
   const [player, setPlayer] = useState<Player | null>(null)
+  const [mode, setMode] = useState<Ruleset>(loadMode)
   const pickerRef = useRef<HTMLElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const { stageRef, scale, height } = useCardScale(cardRef, [data, style])
@@ -217,9 +220,16 @@ function Generator() {
 
   const fetchPickerScores = useCallback(
     (type: ScoreListType) =>
-      player ? fetchPlayerScores(player.id, type) : fetchMyScores(type),
-    [player],
+      player
+        ? fetchPlayerScores(player.id, type, mode)
+        : fetchMyScores(type, mode),
+    [player, mode],
   )
+
+  const changeMode = (next: Ruleset) => {
+    setMode(next)
+    saveMode(next)
+  }
 
   const applyImageFile = useCallback(
     async (file: File) => {
@@ -645,7 +655,7 @@ function Generator() {
                   </div>
                   <a
                     className="button button--ghost"
-                    href={`https://osu.ppy.sh/users/${player.id}/osu`}
+                    href={`https://osu.ppy.sh/users/${player.id}/${mode}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -667,6 +677,8 @@ function Generator() {
                 key={player ? `player-${player.id}` : 'me'}
                 fetchScores={fetchPickerScores}
                 onPick={onPick}
+                mode={mode}
+                onModeChange={changeMode}
                 picking={picking}
                 toUiError={toUiError}
               />

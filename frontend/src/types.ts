@@ -1,5 +1,10 @@
 export type Grade = 'XH' | 'X' | 'SH' | 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
+/** Game modes as the osu! API names them (`fruits` is osu!catch). */
+export type Ruleset = 'osu' | 'taiko' | 'fruits' | 'mania'
+
+export const RULESETS: Ruleset[] = ['osu', 'taiko', 'fruits', 'mania']
+
 export interface ScoreCardMod {
   acronym: string
   settings?: Record<string, unknown>
@@ -8,6 +13,7 @@ export interface ScoreCardMod {
 export interface ScoreCardData {
   id: number
   url: string
+  ruleset: Ruleset
   rank: Grade
   passed: boolean
   score: {
@@ -24,11 +30,18 @@ export interface ScoreCardData {
   endedAt: string
   client: 'stable' | 'lazer'
   mods: ScoreCardMod[]
+  /** Hit counts; which ones matter depends on the ruleset (zero otherwise). */
   statistics: {
+    perfect: number
     great: number
+    good: number
     ok: number
     meh: number
     miss: number
+    largeTickHit: number
+    largeTickMiss: number
+    smallTickHit: number
+    smallTickMiss: number
   }
   beatmap: {
     id: number
@@ -76,6 +89,7 @@ export type ScoreListType = 'recent' | 'best'
 /** One row of the score picker (`GET /api/me/scores`, `GET /api/users/:id/scores`). */
 export interface ScoreSummary {
   id: number
+  ruleset: Ruleset
   rank: Grade
   score: { classic: number; standardised: number }
   accuracy: number
@@ -94,6 +108,7 @@ export type BackgroundSource = 'beatmap' | 'user' | 'custom' | 'solid'
 export type CardBlock =
   | 'header'
   | 'starRating'
+  | 'mode'
   | 'grade'
   | 'mods'
   | 'score'
@@ -108,6 +123,7 @@ export type CardBlock =
 export const CARD_BLOCKS: CardBlock[] = [
   'header',
   'starRating',
+  'mode',
   'grade',
   'mods',
   'score',
