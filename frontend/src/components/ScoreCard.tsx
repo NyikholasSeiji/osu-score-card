@@ -53,6 +53,7 @@ export const ScoreCard = forwardRef<HTMLDivElement, ScoreCardProps>(
     } as CSSProperties
 
     const classes = ['card', `card--${style.layout}`]
+    if (RULESET_STATS[data.ruleset].length > 4) classes.push('card--wide-stats')
     if (editor) classes.push('card--editing')
 
     const meta = (
